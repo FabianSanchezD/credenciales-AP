@@ -8,12 +8,21 @@
       "outputs": [".next/**", "!.next/cache/**", "!.next/dev/**", "dist/**"]
     },
     "lint": {
-      "dependsOn": ["^lint"]
+      "dependsOn": ["^build"]
     },
     "check-types": {
-      "dependsOn": ["^check-types"]
+      "dependsOn": ["^build"]
+    },
+    "test": {
+      "dependsOn": ["^build"],
+      "env": ["STELLAR_NETWORK", "STELLAR_HORIZON_URL", "CORS_ORIGINS"]
+    },
+    "test:e2e": {
+      "dependsOn": ["^build"],
+      "env": ["STELLAR_NETWORK", "STELLAR_HORIZON_URL", "CORS_ORIGINS"]
     },
     "dev": {
+      "dependsOn": ["^build"],
       "cache": false,
       "persistent": true
     }
