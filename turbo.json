@@ -8,12 +8,47 @@
       "outputs": [".next/**", "!.next/cache/**", "!.next/dev/**", "dist/**"]
     },
     "lint": {
-      "dependsOn": ["^lint"]
+      "dependsOn": ["^build"]
     },
     "check-types": {
-      "dependsOn": ["^check-types"]
+      "dependsOn": ["^build"]
+    },
+    "test": {
+      "dependsOn": ["^build"],
+      "env": [
+        "NODE_ENV",
+        "STELLAR_NETWORK",
+        "STELLAR_HORIZON_URL",
+        "CORS_ORIGINS",
+        "DATABASE_PATH",
+        "REDIS_URL",
+        "GOBERNANZA_CUENTAS",
+        "GOBERNANZA_ABIERTA",
+        "ANCLAJE_DRIVER",
+        "ACTA_API_KEY",
+        "ACTA_API_URL",
+        "BOVEDA_CLAVE"
+      ]
+    },
+    "test:e2e": {
+      "dependsOn": ["^build"],
+      "env": [
+        "NODE_ENV",
+        "STELLAR_NETWORK",
+        "STELLAR_HORIZON_URL",
+        "CORS_ORIGINS",
+        "DATABASE_PATH",
+        "REDIS_URL",
+        "GOBERNANZA_CUENTAS",
+        "GOBERNANZA_ABIERTA",
+        "ANCLAJE_DRIVER",
+        "ACTA_API_KEY",
+        "ACTA_API_URL",
+        "BOVEDA_CLAVE"
+      ]
     },
     "dev": {
+      "dependsOn": ["^build"],
       "cache": false,
       "persistent": true
     }

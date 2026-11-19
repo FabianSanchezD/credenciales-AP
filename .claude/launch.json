@@ -1,0 +1,35 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "api",
+      "runtimeExecutable": "pnpm",
+      "runtimeArgs": ["--filter", "api", "dev"],
+      "port": 4000
+    },
+    {
+      "name": "wallet",
+      "runtimeExecutable": "pnpm",
+      "runtimeArgs": ["--filter", "wallet", "dev"],
+      "port": 3000
+    },
+    {
+      "name": "emisor",
+      "runtimeExecutable": "pnpm",
+      "runtimeArgs": ["--filter", "emisor", "dev"],
+      "port": 3001
+    },
+    {
+      "name": "verificador",
+      "runtimeExecutable": "pnpm",
+      "runtimeArgs": ["--filter", "verificador", "dev"],
+      "port": 3002
+    },
+    {
+      "name": "gobernanza",
+      "runtimeExecutable": "pnpm",
+      "runtimeArgs": ["--filter", "gobernanza", "dev"],
+      "port": 3003
+    }
+  ]
+}
