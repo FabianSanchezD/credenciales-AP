@@ -2,7 +2,7 @@ import { Module } from '@nestjs/common';
 import { EmisoresController } from './emisores.controller.js';
 import {
   EmisoresRepository,
-  InMemoryEmisoresRepository,
+  SqliteEmisoresRepository,
 } from './emisores.repository.js';
 import { EmisoresService } from './emisores.service.js';
 
@@ -10,7 +10,7 @@ import { EmisoresService } from './emisores.service.js';
   controllers: [EmisoresController],
   providers: [
     EmisoresService,
-    { provide: EmisoresRepository, useClass: InMemoryEmisoresRepository },
+    { provide: EmisoresRepository, useClass: SqliteEmisoresRepository },
   ],
   exports: [EmisoresService],
 })

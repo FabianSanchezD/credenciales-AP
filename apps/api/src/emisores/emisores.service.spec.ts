@@ -1,23 +1,20 @@
 import {
   ConflictException,
+  ForbiddenException,
   NotFoundException,
   UnprocessableEntityException,
 } from '@nestjs/common';
 import { Keypair } from '@stellar/stellar-sdk';
-import type { StellarService } from '../stellar/stellar.service.js';
-import { InMemoryEmisoresRepository } from './emisores.repository.js';
+import { stellarPrueba } from '../../test/soporte.js';
+import { BaseDatosService } from '../database/base-datos.service.js';
+import { SqliteEmisoresRepository } from './emisores.repository.js';
 import { EmisoresService } from './emisores.service.js';
 
-function crearStellarMock(exists = true) {
-  return {
-    network: 'testnet',
-    toDid: (address: string) => `did:stellar:testnet:${address}`,
-    getAccount: vi.fn(async (address: string) => ({
-      address,
-      exists,
-      balanceXlm: exists ? '100' : '0',
-    })),
-  } as unknown as StellarService & { getAccount: ReturnType<typeof vi.fn> };
+function crearServicio(existe = true) {
+  return new EmisoresService(
+    new SqliteEmisoresRepository(new BaseDatosService(':memory:')),
+    stellarPrueba({ existe }),
+  );
 }
 
 describe('EmisoresService', () => {
@@ -25,74 +22,93 @@ describe('EmisoresService', () => {
   const dto = {
     nombre: 'Tecnológico de Costa Rica',
     categoria: 'universidad' as const,
-    stellarAddress,
   };
 
-  it('crea el emisor pendiente con su did:stellar', async () => {
-    const service = new EmisoresService(
-      new InMemoryEmisoresRepository(),
-      crearStellarMock(),
-    );
+  it('registra la cuenta de la sesión como emisor pendiente', async () => {
+    const service = crearServicio();
 
-    const emisor = await service.create(dto);
+    const emisor = await service.create(stellarAddress, dto);
 
     expect(emisor).toMatchObject({
       nombre: dto.nombre,
       categoria: 'universidad',
       sitioWeb: null,
       estado: 'pendiente',
+      stellarAddress,
       did: `did:stellar:testnet:${stellarAddress}`,
+      motivoEstado: null,
+      autorizadoEn: null,
+      suspendidoEn: null,
     });
     await expect(service.findAll()).resolves.toHaveLength(1);
+    await expect(service.findAll('autorizado')).resolves.toHaveLength(0);
   });
 
   it('rechaza una cuenta Stellar ya registrada', async () => {
-    const service = new EmisoresService(
-      new InMemoryEmisoresRepository(),
-      crearStellarMock(),
-    );
-    await service.create(dto);
+    const service = crearServicio();
+    await service.create(stellarAddress, dto);
 
-    await expect(service.create(dto)).rejects.toBeInstanceOf(ConflictException);
+    await expect(service.create(stellarAddress, dto)).rejects.toBeInstanceOf(
+      ConflictException,
+    );
   });
 
   it('exige que la cuenta exista on-chain', async () => {
-    const service = new EmisoresService(
-      new InMemoryEmisoresRepository(),
-      crearStellarMock(false),
-    );
-
-    await expect(service.create(dto)).rejects.toBeInstanceOf(
-      UnprocessableEntityException,
-    );
+    await expect(
+      crearServicio(false).create(stellarAddress, dto),
+    ).rejects.toBeInstanceOf(UnprocessableEntityException);
   });
 
-  it('actualiza solo los campos enviados', async () => {
-    const service = new EmisoresService(
-      new InMemoryEmisoresRepository(),
-      crearStellarMock(),
-    );
-    const emisor = await service.create(dto);
+  it('solo el dueño actualiza nombre y sitio web', async () => {
+    const service = crearServicio();
+    const emisor = await service.create(stellarAddress, dto);
 
-    const actualizado = await service.update(emisor.id, {
+    const actualizado = await service.update(emisor.id, stellarAddress, {
       sitioWeb: 'https://www.tec.ac.cr',
     });
-
     expect(actualizado).toMatchObject({
       nombre: dto.nombre,
       sitioWeb: 'https://www.tec.ac.cr',
       estado: 'pendiente',
     });
+
+    await expect(
+      service.update(emisor.id, Keypair.random().publicKey(), {
+        nombre: 'Otro',
+      }),
+    ).rejects.toBeInstanceOf(ForbiddenException);
+  });
+
+  it('registra fechas y motivo al autorizar y suspender', async () => {
+    const service = crearServicio();
+    const emisor = await service.create(stellarAddress, dto);
+
+    const autorizado = await service.cambiarEstado(emisor.id, {
+      estado: 'autorizado',
+      motivo: 'Documentación completa',
+    });
+    expect(autorizado.estado).toBe('autorizado');
+    expect(autorizado.autorizadoEn).not.toBeNull();
+    expect(autorizado.motivoEstado).toBe('Documentación completa');
+
+    const suspendido = await service.cambiarEstado(emisor.id, {
+      estado: 'suspendido',
+      motivo: 'Denuncia en revisión',
+    });
+    expect(suspendido.suspendidoEn).not.toBeNull();
+    expect(suspendido.autorizadoEn).toBe(autorizado.autorizadoEn);
+
+    await expect(
+      service.cambiarEstado(emisor.id, {
+        estado: 'suspendido',
+        motivo: 'Otra vez',
+      }),
+    ).rejects.toBeInstanceOf(ConflictException);
   });
 
   it('responde 404 para un emisor inexistente', async () => {
-    const service = new EmisoresService(
-      new InMemoryEmisoresRepository(),
-      crearStellarMock(),
-    );
-
-    await expect(service.findOne(crypto.randomUUID())).rejects.toBeInstanceOf(
-      NotFoundException,
-    );
+    await expect(
+      crearServicio().findOne(crypto.randomUUID()),
+    ).rejects.toBeInstanceOf(NotFoundException);
   });
 });

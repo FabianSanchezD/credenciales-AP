@@ -1,14 +1,16 @@
 import {
   ConflictException,
+  ForbiddenException,
   Injectable,
   NotFoundException,
   UnprocessableEntityException,
 } from '@nestjs/common';
 import { randomUUID } from 'node:crypto';
 import { StellarService } from '../stellar/stellar.service.js';
-import type { Emisor } from './emisor.entity.js';
+import type { Emisor, EstadoEmisor } from './emisor.entity.js';
 import type {
   ActualizarEmisorDto,
+  CambiarEstadoDto,
   CrearEmisorDto,
 } from './emisores.schemas.js';
 import { EmisoresRepository } from './emisores.repository.js';
@@ -20,8 +22,8 @@ export class EmisoresService {
     private readonly stellar: StellarService,
   ) {}
 
-  findAll(): Promise<Emisor[]> {
-    return this.repository.findAll();
+  findAll(estado?: EstadoEmisor): Promise<Emisor[]> {
+    return this.repository.findAll(estado);
   }
 
   async findOne(id: string): Promise<Emisor> {
@@ -32,18 +34,45 @@ export class EmisoresService {
     return emisor;
   }
 
-  async create(dto: CrearEmisorDto): Promise<Emisor> {
-    if (await this.repository.findByStellarAddress(dto.stellarAddress)) {
+  findByAddress(address: string): Promise<Emisor | null> {
+    return this.repository.findByStellarAddress(address);
+  }
+
+  /** Emisor registrado con la cuenta de la sesión. */
+  async delaCuenta(address: string): Promise<Emisor> {
+    const emisor = await this.repository.findByStellarAddress(address);
+    if (!emisor) {
+      throw new ForbiddenException(
+        'Primero registra tu institución como emisor',
+      );
+    }
+    return emisor;
+  }
+
+  /** El emisor `id` existe y pertenece a la cuenta de la sesión. */
+  async propio(id: string, address: string): Promise<Emisor> {
+    const emisor = await this.findOne(id);
+    if (emisor.stellarAddress !== address) {
+      throw new ForbiddenException(
+        'Solo la institución dueña de este emisor puede hacer esta acción',
+      );
+    }
+    return emisor;
+  }
+
+  /** Registra la cuenta de la sesión como emisor `pendiente`. */
+  async create(address: string, dto: CrearEmisorDto): Promise<Emisor> {
+    if (await this.repository.findByStellarAddress(address)) {
       throw new ConflictException(
         'Ya existe un emisor registrado con esa cuenta Stellar',
       );
     }
 
     // El emisor firma y paga la emisión, así que su cuenta debe existir on-chain.
-    const cuenta = await this.stellar.getAccount(dto.stellarAddress);
+    const cuenta = await this.stellar.getAccount(address);
     if (!cuenta.exists) {
       throw new UnprocessableEntityException(
-        `La cuenta ${dto.stellarAddress} no existe en ${this.stellar.network}`,
+        `La cuenta ${address} no existe en ${this.stellar.network}`,
       );
     }
 
@@ -53,22 +82,45 @@ export class EmisoresService {
       nombre: dto.nombre,
       categoria: dto.categoria,
       sitioWeb: dto.sitioWeb ?? null,
-      stellarAddress: dto.stellarAddress,
-      did: this.stellar.toDid(dto.stellarAddress),
+      stellarAddress: address,
+      did: this.stellar.toDid(address),
       estado: 'pendiente',
+      motivoEstado: null,
+      autorizadoEn: null,
+      suspendidoEn: null,
       creadoEn: ahora,
       actualizadoEn: ahora,
     });
   }
 
-  async update(id: string, dto: ActualizarEmisorDto): Promise<Emisor> {
-    const emisor = await this.findOne(id);
+  async update(
+    id: string,
+    address: string,
+    dto: ActualizarEmisorDto,
+  ): Promise<Emisor> {
+    const emisor = await this.propio(id, address);
     return this.repository.save({
       ...emisor,
       ...(dto.nombre !== undefined && { nombre: dto.nombre }),
-      ...(dto.categoria !== undefined && { categoria: dto.categoria }),
       ...(dto.sitioWeb !== undefined && { sitioWeb: dto.sitioWeb }),
       actualizadoEn: new Date().toISOString(),
+    });
+  }
+
+  /** Decisión de la entidad que autoriza (registro de confianza). */
+  async cambiarEstado(id: string, dto: CambiarEstadoDto): Promise<Emisor> {
+    const emisor = await this.findOne(id);
+    if (emisor.estado === dto.estado) {
+      throw new ConflictException(`El emisor ya está ${dto.estado}`);
+    }
+    const ahora = new Date().toISOString();
+    return this.repository.save({
+      ...emisor,
+      estado: dto.estado,
+      motivoEstado: dto.motivo,
+      ...(dto.estado === 'autorizado' && { autorizadoEn: ahora }),
+      ...(dto.estado === 'suspendido' && { suspendidoEn: ahora }),
+      actualizadoEn: ahora,
     });
   }
 }

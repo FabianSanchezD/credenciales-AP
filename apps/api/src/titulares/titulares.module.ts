@@ -2,7 +2,7 @@ import { Module } from '@nestjs/common';
 import { EmisoresModule } from '../emisores/emisores.module.js';
 import { TitularesController } from './titulares.controller.js';
 import {
-  InMemoryTitularesRepository,
+  SqliteTitularesRepository,
   TitularesRepository,
 } from './titulares.repository.js';
 import { TitularesService } from './titulares.service.js';
@@ -12,7 +12,7 @@ import { TitularesService } from './titulares.service.js';
   controllers: [TitularesController],
   providers: [
     TitularesService,
-    { provide: TitularesRepository, useClass: InMemoryTitularesRepository },
+    { provide: TitularesRepository, useClass: SqliteTitularesRepository },
   ],
 })
 export class TitularesModule {}

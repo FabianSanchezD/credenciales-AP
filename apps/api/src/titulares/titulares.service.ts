@@ -11,6 +11,7 @@ import type { Titular } from './titular.entity.js';
 import type { RegistrarTitularDto } from './titulares.schemas.js';
 import { TitularesRepository } from './titulares.repository.js';
 
+/** Cada operación exige que la cuenta de la sesión sea la del emisor. */
 @Injectable()
 export class TitularesService {
   constructor(
@@ -19,8 +20,8 @@ export class TitularesService {
     private readonly stellar: StellarService,
   ) {}
 
-  async findByEmisor(emisorId: string): Promise<Titular[]> {
-    await this.emisores.findOne(emisorId);
+  async findByEmisor(emisorId: string, address: string): Promise<Titular[]> {
+    await this.emisores.propio(emisorId, address);
     return this.repository.findByEmisor(emisorId);
   }
 
@@ -28,8 +29,12 @@ export class TitularesService {
    * Inscribe el DID que el titular compartió con el emisor. La cuenta puede no
    * existir on-chain todavía: Cavos la crea de forma diferida.
    */
-  async register(emisorId: string, dto: RegistrarTitularDto): Promise<Titular> {
-    await this.emisores.findOne(emisorId);
+  async register(
+    emisorId: string,
+    address: string,
+    dto: RegistrarTitularDto,
+  ): Promise<Titular> {
+    await this.emisores.propio(emisorId, address);
 
     const parsed = this.stellar.parseDid(dto.did);
     if (!parsed) {
@@ -38,7 +43,9 @@ export class TitularesService {
       );
     }
     if (await this.repository.findByDid(emisorId, parsed.did)) {
-      throw new ConflictException('El titular ya está inscrito con este emisor');
+      throw new ConflictException(
+        'El titular ya está inscrito con este emisor',
+      );
     }
 
     return this.repository.save({
@@ -50,8 +57,12 @@ export class TitularesService {
     });
   }
 
-  async remove(emisorId: string, titularId: string): Promise<void> {
-    await this.emisores.findOne(emisorId);
+  async remove(
+    emisorId: string,
+    address: string,
+    titularId: string,
+  ): Promise<void> {
+    await this.emisores.propio(emisorId, address);
     if (!(await this.repository.delete(emisorId, titularId))) {
       throw new NotFoundException(`No existe el titular ${titularId}`);
     }

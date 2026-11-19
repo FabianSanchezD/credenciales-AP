@@ -1,7 +1,9 @@
 import { isDidStellar } from '@repo/stellar';
 import { z } from 'zod';
 
-export const titularIdSchema = z.uuid({ error: 'El id del titular no es válido' });
+export const titularIdSchema = z.uuid({
+  error: 'El id del titular no es válido',
+});
 
 export const registrarTitularSchema = z.strictObject({
   did: z.string().trim().refine(isDidStellar, {
