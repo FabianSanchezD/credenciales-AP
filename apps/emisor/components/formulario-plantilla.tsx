@@ -15,9 +15,18 @@ import {
   type TipoAprendizaje,
 } from "@repo/credenciales";
 import { AreaTexto, Aviso, Boton, Campo, Entrada, Panel, Selector, cn } from "@repo/ui";
+import { X } from "lucide-react";
 import { useState, type FormEvent, type ReactNode } from "react";
+import { env } from "../lib/env";
 import { mensajeError } from "../lib/errores";
 import { ListaEditable, nuevoElemento, type Elemento } from "./lista-editable";
+import { VistaPreviaCredencial } from "./vista-previa-credencial";
+
+/** Carpeta y etiquetas: organizan el portal, no forman parte de la credencial. */
+export interface Organizacion {
+  carpeta: string | null;
+  etiquetas: string[];
+}
 
 type Errores = Partial<
   Record<"nombre" | "descripcion" | "resultados" | "temas" | "horas" | "nivel" | "modalidad" | "tipo" | "vigencia", string>
@@ -34,6 +43,26 @@ interface Borrador {
   tipo: TipoAprendizaje | "";
   vence: boolean;
   vigencia: string;
+}
+
+/** Contenido ficticio para probar en testnet. */
+function ejemplo(): Borrador {
+  return {
+    nombre: "Fundamentos de Blockchain",
+    descripcion:
+      "Curso introductorio sobre redes blockchain, firmas digitales y credenciales verificables, con prácticas en la red de pruebas de Stellar.",
+    resultados: [
+      nuevoElemento("Explica cómo funcionan el consenso y la firma digital"),
+      nuevoElemento("Emite y verifica una credencial verificable en Stellar"),
+    ],
+    temas: [nuevoElemento("Criptografía"), nuevoElemento("Stellar"), nuevoElemento("Identidad descentralizada")],
+    horas: "40",
+    nivel: "intermedio",
+    modalidad: "virtual",
+    tipo: "no_formal",
+    vence: true,
+    vigencia: "24",
+  };
 }
 
 function inicial(plantilla?: Plantilla): Borrador {
@@ -125,7 +154,7 @@ function validar(b: Borrador): { contenido: ContenidoPlantilla | null; errores: 
 
 function Seccion({ titulo, descripcion, children }: { titulo: string; descripcion: ReactNode; children: ReactNode }) {
   return (
-    <Panel className="grid gap-6 md:grid-cols-[minmax(0,16rem)_1fr] md:gap-10">
+    <Panel className="grid gap-5 2xl:grid-cols-[minmax(0,14rem)_1fr] 2xl:gap-8">
       <div>
         <h2 className="text-lg font-semibold text-tinta">{titulo}</h2>
         <div className="mt-1.5 text-sm text-tinta-suave">{descripcion}</div>
@@ -144,13 +173,29 @@ export function FormularioPlantilla({
   textoGuardar,
   alGuardar,
   alCancelar,
+  carpetas = [],
+  carpetaInicial = null,
+  emisorNombre,
 }: {
   plantilla?: Plantilla;
   textoGuardar: string;
-  alGuardar: (contenido: ContenidoPlantilla) => Promise<void>;
+  alGuardar: (contenido: ContenidoPlantilla, organizacion: Organizacion) => Promise<void>;
   alCancelar?: () => void;
+  /** Carpetas existentes para elegir la ubicación. */
+  carpetas?: string[];
+  carpetaInicial?: string | null;
+  emisorNombre: string;
 }) {
   const [b, setB] = useState<Borrador>(() => inicial(plantilla));
+  const [carpeta, setCarpeta] = useState<string | null>(plantilla?.carpeta ?? carpetaInicial);
+  const [etiquetas, setEtiquetas] = useState<string[]>(plantilla?.etiquetas ?? []);
+  const [nuevaEtiqueta, setNuevaEtiqueta] = useState("");
+
+  function agregarEtiqueta() {
+    const texto = nuevaEtiqueta.trim().replace(/^#/, "");
+    if (texto && !etiquetas.includes(texto) && etiquetas.length < 20) setEtiquetas([...etiquetas, texto.slice(0, 40)]);
+    setNuevaEtiqueta("");
+  }
   const [errores, setErrores] = useState<Errores>({});
   const [guardando, setGuardando] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -170,7 +215,7 @@ export function FormularioPlantilla({
     setGuardando(true);
     setError(null);
     try {
-      await alGuardar(contenido);
+      await alGuardar(contenido, { carpeta, etiquetas });
     } catch (e) {
       setError(mensajeError(e, "No se pudo guardar la plantilla. Intenta de nuevo."));
     } finally {
@@ -178,8 +223,79 @@ export function FormularioPlantilla({
     }
   }
 
+  const opcionesCarpeta = [...new Set([...carpetas, ...(carpeta ? [carpeta] : [])])].sort((x, y) => x.localeCompare(y, "es"));
+
   return (
-    <form onSubmit={(e) => void enviar(e)} noValidate className="flex flex-col gap-5">
+    <div className="grid items-start gap-6 lg:grid-cols-[minmax(0,1fr)_360px]">
+    <form onSubmit={(e) => void enviar(e)} noValidate className="flex min-w-0 flex-col gap-5">
+      {!plantilla && env.stellarNetwork === "testnet" && (
+        <Aviso
+          tipo="info"
+          accion={
+            <Boton type="button" tamano="sm" variante="secundario" onClick={() => setB(ejemplo())}>
+              Usar datos de ejemplo
+            </Boton>
+          }
+        >
+          Está en testnet: puede rellenar la plantilla con un curso ficticio para probar.
+        </Aviso>
+      )}
+      <Seccion
+        titulo="Ubicación"
+        descripcion="Carpeta y etiquetas solo organizan sus plantillas en el portal. No forman parte de la credencial ni cambian su versión."
+      >
+        <Campo etiqueta="Carpeta" opcional>
+          {(props) => (
+            <Selector {...props} value={carpeta ?? ""} onChange={(e) => setCarpeta(e.target.value || null)}>
+              <option value="">Sin carpeta</option>
+              {opcionesCarpeta.map((ruta) => (
+                <option key={ruta} value={ruta}>
+                  {ruta.replaceAll("/", " › ")}
+                </option>
+              ))}
+            </Selector>
+          )}
+        </Campo>
+        <div className="flex flex-col gap-2">
+          <label htmlFor="nueva-etiqueta" className="text-sm font-semibold text-tinta">
+            Etiquetas <span className="font-normal text-tinta-tenue">(opcional)</span>
+          </label>
+          {etiquetas.length > 0 && (
+            <ul className="flex flex-wrap gap-1.5">
+              {etiquetas.map((t) => (
+                <li key={t} className="inline-flex items-center gap-1 rounded-full border border-linea bg-hundido py-1 pl-3 pr-1.5 text-[13px]">
+                  #{t}
+                  <button
+                    type="button"
+                    onClick={() => setEtiquetas(etiquetas.filter((x) => x !== t))}
+                    className="grid size-5 place-items-center rounded-full text-tinta-tenue hover:bg-linea hover:text-tinta"
+                  >
+                    <X aria-hidden className="size-3" />
+                    <span className="sr-only">Quitar {t}</span>
+                  </button>
+                </li>
+              ))}
+            </ul>
+          )}
+          <div className="flex gap-2">
+            <Entrada
+              id="nueva-etiqueta"
+              value={nuevaEtiqueta}
+              placeholder="Por ejemplo, acreditada"
+              onChange={(e) => setNuevaEtiqueta(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") {
+                  e.preventDefault();
+                  agregarEtiqueta();
+                }
+              }}
+            />
+            <Boton type="button" variante="secundario" onClick={agregarEtiqueta}>
+              Agregar
+            </Boton>
+          </div>
+        </div>
+      </Seccion>
       <Seccion
         titulo="El logro"
         descripcion="Es lo que verá cualquier persona que reciba la credencial: el nombre y una descripción breve."
@@ -363,6 +479,30 @@ export function FormularioPlantilla({
         )}
       </div>
     </form>
+      <VistaPrevia b={b} emisorNombre={emisorNombre} />
+    </div>
+  );
+}
+
+function VistaPrevia({ b, emisorNombre }: { b: Borrador; emisorNombre: string }) {
+  return (
+    <aside className="flex flex-col gap-2.5 lg:sticky lg:top-24">
+      <span className="text-[11px] font-medium uppercase tracking-[0.1em] text-tinta-tenue">Vista previa</span>
+      <VistaPreviaCredencial
+        emisor={emisorNombre}
+        nombre={b.nombre}
+        descripcion={b.descripcion}
+        resultados={limpiar(b.resultados)}
+        temas={limpiar(b.temas)}
+        horas={b.horas}
+        nivel={b.nivel || null}
+        modalidad={b.modalidad || null}
+        vigenciaMeses={b.vence ? Number(b.vigencia) || null : null}
+      />
+      <p className="text-xs text-tinta-tenue">
+        Así la verá quien la reciba. Resultados, temas y contexto los decide mostrar el titular al compartirla.
+      </p>
+    </aside>
   );
 }
 
@@ -382,7 +522,7 @@ function Opcion({
       className={cn(
         "flex cursor-pointer items-center gap-3 rounded-control border px-3 py-2.5 text-sm font-semibold text-tinta transition-colors",
         "hover:border-linea-fuerte has-[:focus-visible]:ring-2 has-[:focus-visible]:ring-marino/40",
-        marcada ? "border-sello bg-sello-claro" : "border-linea bg-superficie",
+        marcada ? "border-tec-azul shadow-[inset_0_0_0_1px_var(--color-tec-azul)]" : "border-linea bg-superficie",
       )}
     >
       <input
@@ -390,7 +530,7 @@ function Opcion({
         name={nombre}
         checked={marcada}
         onChange={alMarcar}
-        className="size-4 accent-[var(--color-sello)]"
+        className="size-4 accent-[var(--color-tec-azul)]"
       />
       {children}
     </label>

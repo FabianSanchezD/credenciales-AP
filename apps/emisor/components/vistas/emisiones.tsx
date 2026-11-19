@@ -3,7 +3,7 @@
 import { ESTADOS_EMISION, type Emision, type EstadoEmision } from "@repo/cliente";
 import { useSesion } from "@repo/cliente/react";
 import { Cargando, EncabezadoPagina, Vacio, abreviar, cn, formatearFecha } from "@repo/ui";
-import { FileCheck2, Send } from "lucide-react";
+import { FileCheck2, Search, Send } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
 import { ETIQUETAS_ESTADO_EMISION, ordenarEmisiones } from "../../lib/emisiones";
@@ -25,6 +25,7 @@ export function TablaEmisiones({ emisiones }: { emisiones: Emision[] }) {
           <thead className="border-b border-linea bg-hundido/60 text-tinta-suave">
             <tr>
               <th scope="col" className="px-4 py-3 font-semibold">Credencial</th>
+              <th scope="col" className="px-4 py-3 font-semibold">Código</th>
               <th scope="col" className="px-4 py-3 font-semibold">Titular</th>
               <th scope="col" className="px-4 py-3 font-semibold">Estado</th>
               <th scope="col" className="px-4 py-3 font-semibold">Fecha</th>
@@ -34,10 +35,11 @@ export function TablaEmisiones({ emisiones }: { emisiones: Emision[] }) {
             {emisiones.map((e) => (
               <tr key={e.id} className="hover:bg-hundido/40">
                 <td className="px-4 py-3">
-                  <Link href={`/emisiones/${e.id}`} className="font-semibold text-tinta hover:underline">
+                  <Link href={`/emisiones/${e.id}`} className="font-medium text-tec-azul hover:underline">
                     {e.plantillaNombre}
                   </Link>
                 </td>
+                <td className="px-4 py-3 font-mono text-[0.8125rem] text-tinta-suave">{e.id.slice(0, 8).toUpperCase()}</td>
                 <td className="px-4 py-3">
                   <code title={e.titularDid} className="font-mono text-[0.8125rem] text-tinta-suave">
                     {abreviar(e.titularDid, 22, 6)}
@@ -76,8 +78,12 @@ export function VistaEmisiones() {
   const { api } = useSesion();
   const consulta = useConsulta(() => api.listarEmisiones(), "emisiones");
   const [filtro, setFiltro] = useState<Filtro>("todas");
+  const [busqueda, setBusqueda] = useState("");
   const todas = ordenarEmisiones(consulta.datos ?? []);
-  const visibles = filtro === "todas" ? todas : todas.filter((e) => e.estado === filtro);
+  const texto = busqueda.trim().toLowerCase();
+  const visibles = (filtro === "todas" ? todas : todas.filter((e) => e.estado === filtro)).filter(
+    (e) => !texto || e.plantillaNombre.toLowerCase().includes(texto) || e.titularDid.toLowerCase().includes(texto) || e.id.startsWith(texto),
+  );
   const cuenta = (estado: Filtro) =>
     estado === "todas" ? todas.length : todas.filter((e) => e.estado === estado).length;
 
@@ -88,7 +94,7 @@ export function VistaEmisiones() {
         descripcion="Todas las credenciales que tu institución ha emitido o dejado en borrador. Abre una para ver su anclaje o revocarla."
         acciones={
           <EnlaceBoton href="/emitir" icono={<Send aria-hidden className="size-4" />}>
-            Emitir credencial
+            Emitir credenciales
           </EnlaceBoton>
         }
       />
@@ -105,6 +111,16 @@ export function VistaEmisiones() {
       )}
       {todas.length > 0 && (
         <div className="flex flex-col gap-4">
+          <div className="relative max-w-[360px]">
+            <Search aria-hidden className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-tinta-tenue" />
+            <input
+              aria-label="Buscar por plantilla, DID o código"
+              placeholder="Buscar por plantilla, DID o código"
+              value={busqueda}
+              onChange={(e) => setBusqueda(e.target.value)}
+              className="h-10 w-full rounded-control border border-linea pl-9 pr-3"
+            />
+          </div>
           <div role="group" aria-label="Filtrar por estado" className="flex flex-wrap gap-2">
             {(["todas", ...ESTADOS_EMISION] as Filtro[]).map((opcion) => (
               <button
@@ -115,7 +131,7 @@ export function VistaEmisiones() {
                 className={cn(
                   "inline-flex h-8 items-center gap-1.5 rounded-full border px-3 text-sm font-medium transition-colors",
                   filtro === opcion
-                    ? "border-tinta bg-tinta text-superficie"
+                    ? "border-tec-azul bg-tec-azul text-white"
                     : "border-linea bg-superficie text-tinta-suave hover:border-linea-fuerte hover:text-tinta",
                 )}
               >
@@ -128,7 +144,7 @@ export function VistaEmisiones() {
             <TablaEmisiones emisiones={visibles} />
           ) : (
             <p className="rounded-panel border border-dashed border-linea-fuerte px-4 py-8 text-center text-tinta-suave">
-              No hay emisiones en este estado.
+              No hay emisiones que coincidan.
             </p>
           )}
         </div>

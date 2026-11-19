@@ -1,6 +1,6 @@
 "use client";
 
-import { ErrorApi, type RegistroEmisor } from "@repo/cliente";
+import type { RegistroEmisor } from "@repo/cliente";
 import { useSesion } from "@repo/cliente/react";
 import { useEffect, useState } from "react";
 
@@ -12,24 +12,19 @@ export function useMiRegistro(): RegistroEmisor | null {
   const { api, sesion } = useSesion();
   const emisor = sesion?.emisor ?? null;
   const clave = emisor ? `${emisor.id}:${emisor.actualizadoEn}` : null;
-  const [registro, setRegistro] = useState<RegistroEmisor | null>(null);
+  const [cargado, setCargado] = useState<{ clave: string; registro: RegistroEmisor | null } | null>(null);
 
   useEffect(() => {
-    if (!clave) {
-      setRegistro(null);
-      return;
-    }
+    if (!clave) return;
     let vigente = true;
     api.miRegistro().then(
-      (datos) => vigente && setRegistro(datos),
-      (e: unknown) => {
-        if (vigente && e instanceof ErrorApi && e.status === 404) setRegistro(null);
-      },
+      (registro) => vigente && setCargado({ clave, registro }),
+      () => vigente && setCargado({ clave, registro: null }),
     );
     return () => {
       vigente = false;
     };
   }, [api, clave]);
 
-  return registro;
+  return cargado && cargado.clave === clave ? cargado.registro : null;
 }

@@ -1,31 +1,43 @@
 "use client";
 
 import { useSesion } from "@repo/cliente/react";
-import { EncabezadoPagina } from "@repo/ui";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
+import { useConsulta } from "../../lib/use-consulta";
+import { useEmisor } from "../acceso";
 import { EnlaceTexto } from "../comun";
 import { FormularioPlantilla } from "../formulario-plantilla";
 
 export function VistaPlantillaNueva() {
   const { api } = useSesion();
+  const emisor = useEmisor();
   const router = useRouter();
+  const carpetaInicial = useSearchParams().get("carpeta");
+  const carpetas = useConsulta(() => api.listarCarpetas(), "carpetas");
   return (
-    <>
-      <p className="mb-3 text-sm">
-        <EnlaceTexto href="/plantillas">Volver a plantillas</EnlaceTexto>
-      </p>
-      <EncabezadoPagina
-        titulo="Nueva plantilla"
-        descripcion="Define una sola vez el contenido de un curso y úsalo en todas las credenciales que emitas para él."
-      />
+    <div className="flex flex-col gap-5">
+      <div className="text-[13px] text-tinta-suave">
+        <EnlaceTexto href="/plantillas">Plantillas</EnlaceTexto> › Nueva plantilla
+      </div>
+      <div>
+        <h1 className="text-[1.75rem] font-bold leading-tight text-tec-azul">Nueva plantilla</h1>
+        <p className="mt-1.5 max-w-[62ch] text-tinta-suave">
+          Defina una sola vez qué certifica y úsela en todas las credenciales que emita para ese logro.
+        </p>
+      </div>
       <FormularioPlantilla
         textoGuardar="Guardar plantilla"
+        emisorNombre={emisor.nombre}
+        carpetas={carpetas.datos ?? []}
+        carpetaInicial={carpetaInicial}
         alCancelar={() => router.push("/plantillas")}
-        alGuardar={async (contenido) => {
+        alGuardar={async (contenido, organizacion) => {
           const creada = await api.crearPlantilla(contenido);
-          router.push(`/plantillas/${creada.id}`);
+          if (organizacion.carpeta || organizacion.etiquetas.length) {
+            await api.organizarPlantilla(creada.id, organizacion);
+          }
+          router.push(`/plantillas?creada=${creada.id}`);
         }}
       />
-    </>
+    </div>
   );
 }

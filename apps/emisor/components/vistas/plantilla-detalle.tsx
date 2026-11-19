@@ -24,6 +24,7 @@ import { useParams } from "next/navigation";
 import { useState } from "react";
 import { mensajeError } from "../../lib/errores";
 import { useConsulta } from "../../lib/use-consulta";
+import { useEmisor } from "../acceso";
 import { EnlaceBoton, EnlaceTexto, ErrorCarga } from "../comun";
 import { FormularioPlantilla } from "../formulario-plantilla";
 
@@ -69,7 +70,9 @@ export function ContenidoDePlantilla({ plantilla }: { plantilla: Plantilla }) {
 export function VistaPlantillaDetalle() {
   const { id } = useParams<{ id: string }>();
   const { api } = useSesion();
+  const emisor = useEmisor();
   const consulta = useConsulta(() => api.obtenerPlantilla(id), `plantilla:${id}`);
+  const carpetas = useConsulta(() => api.listarCarpetas(), "carpetas");
   const [editando, setEditando] = useState(false);
   const [confirmarArchivo, setConfirmarArchivo] = useState(false);
   const [archivando, setArchivando] = useState(false);
@@ -147,9 +150,12 @@ export function VistaPlantillaDetalle() {
               <FormularioPlantilla
                 plantilla={plantilla}
                 textoGuardar="Guardar nueva versión"
+                emisorNombre={emisor.nombre}
+                carpetas={carpetas.datos ?? []}
                 alCancelar={() => setEditando(false)}
-                alGuardar={async (contenido) => {
-                  const nueva = await api.actualizarPlantilla(plantilla.id, contenido);
+                alGuardar={async (contenido, organizacion) => {
+                  const actualizada = await api.actualizarPlantilla(plantilla.id, contenido);
+                  const nueva = await api.organizarPlantilla(actualizada.id, organizacion);
                   consulta.mutar(() => nueva);
                   setEditando(false);
                   setAviso(`Se guardó la versión ${nueva.version} de la plantilla.`);

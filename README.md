@@ -53,8 +53,9 @@ puede usar la cuenta demo.
    autorizarla, pedir correcciones o rechazarla, siempre con un motivo. Con correcciones, la
    institución corrige sus datos en el portal y la reenvía.
 4. **Wallet** (3000): entrar y copiar el DID.
-5. **Emisor**: entrar con el correo y la contraseña, crear una plantilla, inscribir el DID del
-   titular y emitir. La llave de la institución firma la credencial y la transacción que ancla el
+5. **Emisor**: entrar con el correo y la contraseña, crear una plantilla ("Usar datos de ejemplo"
+   la rellena; carpetas y etiquetas solo organizan el portal), inscribir el DID del titular y
+   emitir. Se puede emitir a varios titulares a la vez pegando DIDs o cargando un CSV. La llave de la institución firma la credencial y la transacción que ancla el
    hash en Stellar (tras recargar la página se pide la contraseña para firmar).
 6. **Wallet**: abrir la credencial, elegir qué revelar y compartir el enlace o el QR.
 7. **Verificador** (3002): abrir el enlace. Resultado: credencial válida.

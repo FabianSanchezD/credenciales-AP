@@ -100,6 +100,48 @@ describe('Plantillas', () => {
       ).rejects.toBeInstanceOf(ConflictException);
     });
 
+    it('organiza en carpetas y etiquetas sin cambiar la versión', async () => {
+      const { plantillas, cuenta } = await setup();
+      const p = await plantillas.crear(cuenta, CONTENIDO_PLANTILLA);
+      const organizada = await plantillas.organizar(
+        cuenta,
+        p.id,
+        'Grado/Ingenierías',
+        ['acreditada'],
+      );
+      expect(organizada).toMatchObject({
+        version: 1,
+        carpeta: 'Grado/Ingenierías',
+      });
+      await expect(plantillas.carpetas(cuenta)).resolves.toEqual([
+        'Grado',
+        'Grado/Ingenierías',
+      ]);
+      await expect(
+        plantillas.eliminarCarpeta(cuenta, 'Grado'),
+      ).rejects.toBeInstanceOf(ConflictException);
+
+      await plantillas.renombrarCarpeta(cuenta, 'Grado', 'Títulos');
+      await expect(plantillas.obtener(cuenta, p.id)).resolves.toMatchObject({
+        carpeta: 'Títulos/Ingenierías',
+        etiquetas: ['acreditada'],
+      });
+
+      await plantillas.crearCarpeta(cuenta, 'Vacía');
+      await expect(
+        plantillas.eliminarCarpeta(cuenta, 'Vacía'),
+      ).resolves.not.toContain('Vacía');
+    });
+
+    it('restaura una plantilla archivada', async () => {
+      const { plantillas, cuenta } = await setup();
+      const p = await plantillas.crear(cuenta, CONTENIDO_PLANTILLA);
+      await plantillas.archivar(cuenta, p.id);
+      await expect(plantillas.restaurar(cuenta, p.id)).resolves.toMatchObject({
+        archivada: false,
+      });
+    });
+
     it('cada emisor solo ve sus plantillas', async () => {
       const { plantillas, emisores, cuenta } = await setup();
       const plantilla = await plantillas.crear(cuenta, CONTENIDO_PLANTILLA);

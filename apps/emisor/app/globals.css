@@ -33,6 +33,13 @@ html:root {
   --color-accion-hover: #1a3d66;
 }
 
+/* Los títulos de página usan el azul TEC. */
+@layer base {
+  main h1 {
+    color: var(--color-tec-azul);
+  }
+}
+
 /* Colores y letras de marca que no existen en Sello. */
 @theme {
   --color-tec-azul: #002855;

@@ -178,6 +178,25 @@ export class ClienteApi {
   actualizarPlantilla(id: string, contenido: ContenidoPlantilla) {
     return this.pedir<Plantilla>("PUT", `/plantillas/${id}`, contenido);
   }
+  /** Carpeta y etiquetas: solo organizan el portal, no cambian la versión. */
+  organizarPlantilla(id: string, datos: { carpeta: string | null; etiquetas: string[] }) {
+    return this.pedir<Plantilla>("PUT", `/plantillas/${id}/organizacion`, datos);
+  }
+  restaurarPlantilla(id: string) {
+    return this.pedir<Plantilla>("POST", `/plantillas/${id}/restaurar`);
+  }
+  listarCarpetas() {
+    return this.pedir<string[]>("GET", "/plantillas/carpetas");
+  }
+  crearCarpeta(ruta: string) {
+    return this.pedir<string[]>("POST", "/plantillas/carpetas", { ruta });
+  }
+  renombrarCarpeta(de: string, a: string) {
+    return this.pedir<string[]>("POST", "/plantillas/carpetas/renombrar", { de, a });
+  }
+  eliminarCarpeta(ruta: string) {
+    return this.pedir<string[]>("POST", "/plantillas/carpetas/eliminar", { ruta });
+  }
   archivarPlantilla(id: string) {
     return this.pedir<Plantilla>("POST", `/plantillas/${id}/archivar`);
   }

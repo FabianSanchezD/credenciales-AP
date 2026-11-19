@@ -42,6 +42,18 @@ CREATE TABLE IF NOT EXISTS plantillas (
   actualizada_en TEXT NOT NULL
 );
 
+-- Organización del portal (carpetas y etiquetas). No forma parte de la
+-- plantilla ni de las credenciales, así que no cambia su versión.
+CREATE TABLE IF NOT EXISTS organizacion_plantillas (
+  plantilla_id TEXT PRIMARY KEY REFERENCES plantillas(id),
+  carpeta TEXT,
+  etiquetas TEXT NOT NULL DEFAULT '[]'
+);
+CREATE TABLE IF NOT EXISTS carpetas_plantillas (
+  emisor_id TEXT NOT NULL REFERENCES emisores(id),
+  ruta TEXT NOT NULL,
+  PRIMARY KEY (emisor_id, ruta)
+);
 CREATE TABLE IF NOT EXISTS emisiones (
   id TEXT PRIMARY KEY,
   emisor_id TEXT NOT NULL REFERENCES emisores(id),

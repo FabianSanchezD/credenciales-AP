@@ -202,6 +202,10 @@ export interface Plantilla extends ContenidoPlantilla {
   emisorId: string;
   version: number;
   archivada: boolean;
+  /** Ruta de carpeta del portal (`Grado/Ingenierías`); no es parte de la credencial. */
+  carpeta: string | null;
+  /** Etiquetas para organizar en el portal; no son parte de la credencial. */
+  etiquetas: string[];
   creadaEn: string;
   actualizadaEn: string;
 }
