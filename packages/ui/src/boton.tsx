@@ -5,18 +5,16 @@ import { cn } from "./cn";
 export type VarianteBoton = "primario" | "secundario" | "fantasma" | "peligro";
 
 const VARIANTES: Record<VarianteBoton, string> = {
-  primario:
-    "bg-tinta text-superficie hover:bg-marino disabled:bg-linea-fuerte disabled:text-superficie",
-  secundario:
-    "bg-superficie text-tinta border border-linea-fuerte hover:border-tinta hover:bg-hundido",
-  fantasma: "text-tinta-suave hover:text-tinta hover:bg-hundido",
-  peligro: "bg-lacre text-white hover:bg-lacre-hondo",
+  primario: "border border-marino bg-marino text-white hover:border-marino-hondo hover:bg-marino-hondo",
+  secundario: "bg-superficie text-tinta border border-linea hover:border-marino",
+  fantasma: "border border-transparent text-marino hover:bg-hundido",
+  peligro: "bg-superficie text-lacre border border-rojo hover:bg-lacre-claro",
 };
 
 const TAMANOS = {
-  sm: "h-8 px-3 text-sm gap-1.5",
-  md: "h-10 px-4 text-[0.9375rem] gap-2",
-  lg: "h-12 px-5 text-base gap-2",
+  sm: "min-h-8 px-3 text-[13px] gap-1.5",
+  md: "min-h-11 px-[18px] text-[14.5px] gap-2",
+  lg: "min-h-12 px-5 text-[15px] gap-2",
 };
 
 export interface PropsBoton extends ButtonHTMLAttributes<HTMLButtonElement> {
@@ -33,8 +31,8 @@ export function clasesBoton({
   anchoCompleto = false,
 }: Pick<PropsBoton, "variante" | "tamano" | "anchoCompleto"> = {}): string {
   return cn(
-    "inline-flex select-none items-center justify-center rounded-control font-semibold transition-colors",
-    "disabled:cursor-not-allowed disabled:opacity-70",
+    "inline-flex select-none items-center justify-center rounded-control font-medium transition-colors",
+    "disabled:cursor-not-allowed disabled:opacity-45",
     VARIANTES[variante],
     TAMANOS[tamano],
     anchoCompleto && "w-full",

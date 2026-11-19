@@ -12,9 +12,10 @@ function TarjetaPlantilla({ plantilla }: { plantilla: Plantilla }) {
   const resultados = plantilla.resultadosAprendizaje.length;
   return (
     <li>
-      <Panel className="flex h-full flex-col gap-3">
+      <Panel className="flex h-full flex-col gap-2.5">
+        <p className="text-[11px] font-medium uppercase tracking-[0.12em] text-lacre">Plantilla</p>
         <div className="flex items-start justify-between gap-3">
-          <h3 className="font-serif text-xl font-medium leading-tight text-tinta">
+          <h3 className="text-[17px] font-medium leading-tight text-tinta">
             <Link
               href={`/plantillas/${plantilla.id}`}
               className="rounded-control hover:underline hover:decoration-linea-fuerte hover:underline-offset-4"
@@ -29,7 +30,7 @@ function TarjetaPlantilla({ plantilla }: { plantilla: Plantilla }) {
           {resumenContexto(plantilla.contexto)}. {resultados === 1 ? "1 resultado" : `${resultados} resultados`} de
           aprendizaje.
         </p>
-        <div className="mt-auto flex flex-wrap items-center gap-2 pt-2">
+        <div className="mt-auto flex flex-wrap items-center gap-2 border-t border-linea pt-3">
           <EnlaceBoton href={`/plantillas/${plantilla.id}`} variante="secundario" tamano="sm">
             Ver plantilla
           </EnlaceBoton>

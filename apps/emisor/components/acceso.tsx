@@ -2,7 +2,8 @@
 
 import type { Emisor } from "@repo/cliente";
 import { useSesion } from "@repo/cliente/react";
-import { Cargando, Marco, PanelConexion } from "@repo/ui";
+import { Cargando, Marco, PanelConexion, type PresentacionConexion } from "@repo/ui";
+import { Eye, FingerprintPattern, Lock, PenLine } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { createContext, useContext, type ReactNode } from "react";
@@ -37,6 +38,19 @@ function Enlace({
     </Link>
   );
 }
+
+const PRESENTACION: PresentacionConexion = {
+  antetitulo: "Instituciones emisoras",
+  titulo: "Credenciales con respaldo verificable",
+  descripcion:
+    "Cada credencial lleva la firma de la institución y una huella registrada en una red pública. Si alguien altera un solo dato, la verificación lo detecta.",
+  rasgos: [
+    { icono: PenLine, titulo: "Firma digital", texto: "De la institución, en cada emisión." },
+    { icono: FingerprintPattern, titulo: "Huella inalterable", texto: "Anclada en Stellar, consultable por cualquiera." },
+    { icono: Eye, titulo: "Divulgación selectiva", texto: "El titular decide qué datos mostrar." },
+    { icono: Lock, titulo: "Emisores validados", texto: "Solo instituciones aprobadas pueden emitir." },
+  ],
+};
 
 const ContextoEmisor = createContext<Emisor | null>(null);
 
@@ -76,6 +90,7 @@ export function Acceso({ children }: { children: ReactNode }) {
         network={env.stellarNetwork}
         horizonUrl={env.stellarHorizonUrl}
         claveDemo={CLAVE_DEMO}
+        presentacion={PRESENTACION}
         pie={
           <p className="text-sm text-tinta-tenue">
             Si tu institución todavía no está registrada, podrás registrarla después de entrar.

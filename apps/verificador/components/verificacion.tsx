@@ -127,7 +127,7 @@ function EnlaceInicio({ texto }: { texto: string }) {
 function Problema({ titulo, children, accion }: { titulo: string; children: ReactNode; accion: ReactNode }) {
   return (
     <div className="flex flex-col gap-4 rounded-documento border border-linea bg-superficie p-6 sm:p-8">
-      <h1 className="text-2xl font-bold text-tinta">{titulo}</h1>
+      <h1 className="text-2xl font-bold text-marino">{titulo}</h1>
       <div className="flex max-w-prose flex-col gap-3 text-tinta-suave">{children}</div>
       <div className="flex flex-wrap gap-2 pt-1">{accion}</div>
     </div>
@@ -167,7 +167,7 @@ function CodigoDanado() {
 function ErrorVerificacion({ mensaje, alReintentar }: { mensaje: string; alReintentar: () => void }) {
   return (
     <div className="flex flex-col gap-4">
-      <h1 className="text-2xl font-bold text-tinta">No pudimos completar la verificación</h1>
+      <h1 className="text-2xl font-bold text-marino">No pudimos completar la verificación</h1>
       <Aviso
         tipo="error"
         titulo={mensaje}

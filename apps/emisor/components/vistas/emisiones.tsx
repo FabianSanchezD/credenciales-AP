@@ -22,17 +22,17 @@ export function TablaEmisiones({ emisiones }: { emisiones: Emision[] }) {
     <>
       <div className="hidden overflow-hidden rounded-panel border border-linea bg-superficie md:block">
         <table className="w-full text-left text-sm">
-          <thead className="border-b border-linea bg-hundido/60 text-tinta-suave">
+          <thead className="border-b border-linea bg-papel text-[11.5px] uppercase tracking-[0.08em] text-tinta-suave">
             <tr>
-              <th scope="col" className="px-4 py-3 font-semibold">Credencial</th>
-              <th scope="col" className="px-4 py-3 font-semibold">Titular</th>
-              <th scope="col" className="px-4 py-3 font-semibold">Estado</th>
-              <th scope="col" className="px-4 py-3 font-semibold">Fecha</th>
+              <th scope="col" className="px-4 py-2.5 font-medium">Credencial</th>
+              <th scope="col" className="px-4 py-2.5 font-medium">Titular</th>
+              <th scope="col" className="px-4 py-2.5 font-medium">Estado</th>
+              <th scope="col" className="px-4 py-2.5 font-medium">Fecha</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-linea">
             {emisiones.map((e) => (
-              <tr key={e.id} className="hover:bg-hundido/40">
+              <tr key={e.id} className="hover:bg-hundido">
                 <td className="px-4 py-3">
                   <Link href={`/emisiones/${e.id}`} className="font-semibold text-tinta hover:underline">
                     {e.plantillaNombre}

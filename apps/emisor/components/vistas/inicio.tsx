@@ -12,9 +12,9 @@ import { TablaEmisiones } from "./emisiones";
 
 function Cifra({ etiqueta, valor, href }: { etiqueta: string; valor: number; href: string }) {
   return (
-    <Panel className="flex flex-col gap-1 p-4 sm:p-5">
-      <span className="text-sm text-tinta-suave">{etiqueta}</span>
-      <span className="cifras text-3xl font-bold text-tinta">{valor}</span>
+    <Panel className="flex flex-col gap-0.5 px-[18px] py-4">
+      <span className="text-[12.5px] text-tinta-suave">{etiqueta}</span>
+      <span className="cifras text-[26px] font-bold text-marino">{valor}</span>
       <span className="text-sm">
         <EnlaceTexto href={href}>Ver</EnlaceTexto>
       </span>
@@ -26,7 +26,7 @@ function Siguiente({ titulo, children, accion }: { titulo: string; children: Rea
   return (
     <Panel className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
       <div>
-        <h2 className="text-lg font-semibold text-tinta">{titulo}</h2>
+        <h2 className="text-[17px] font-medium text-tinta">{titulo}</h2>
         <p className="mt-1 text-tinta-suave">{children}</p>
       </div>
       <div className="shrink-0">{accion}</div>
@@ -96,7 +96,7 @@ export function VistaInicio() {
   return (
     <>
       <div className="mb-6 sm:mb-8">
-        <h1 className="text-2xl font-bold text-tinta sm:text-[1.75rem]">{emisor.nombre}</h1>
+        <h1 className="text-2xl font-bold text-marino sm:text-[28px]">{emisor.nombre}</h1>
         <p className="mt-1.5 text-tinta-suave">Resumen de las credenciales que emite tu institución.</p>
       </div>
       {datos.error && <ErrorCarga mensaje={datos.error} alReintentar={datos.recargar} />}

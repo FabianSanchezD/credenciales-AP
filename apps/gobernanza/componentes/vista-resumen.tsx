@@ -164,7 +164,7 @@ function Cifras({ resumen }: { resumen: ResumenGobernanza }) {
               {grupo.datos.map((dato) => (
                 <div key={dato.termino} className="flex flex-col justify-between gap-0.5">
                   <dt className="text-sm text-tinta-tenue">{dato.termino}</dt>
-                  <dd className="text-xl font-semibold text-tinta cifras">{numero.format(dato.valor)}</dd>
+                  <dd className="text-[26px] font-bold text-marino cifras">{numero.format(dato.valor)}</dd>
                 </div>
               ))}
             </dl>
@@ -201,7 +201,7 @@ function Salvaguardas({ indicadores }: { indicadores: Indicador[] }) {
           <Panel className="hidden overflow-hidden p-0! sm:block">
             <table className="w-full text-left text-sm">
               <caption className="sr-only">Indicadores de salvaguardas</caption>
-              <thead className="border-b border-linea text-tinta-tenue">
+              <thead className="border-b border-linea bg-papel text-[11.5px] uppercase tracking-[0.08em] text-tinta-suave">
                 <tr>
                   <th scope="col" className="px-5 py-3 font-medium">Indicador</th>
                   <th scope="col" className="px-5 py-3 font-medium">Salvaguarda que protege</th>

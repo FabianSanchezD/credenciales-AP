@@ -77,7 +77,7 @@ export function Resultado({ resultado }: { resultado: ResultadoVerificacion }) {
           <Sello estado={estado} tamano={176} estampar className="size-36 sm:size-44" />
           <h1
             id="titular-resultado"
-            className={cn("mt-2 text-[1.75rem] font-bold leading-tight sm:text-[2rem]", valida ? "text-tinta" : "text-lacre")}
+            className={cn("mt-2 text-[1.75rem] font-bold leading-tight sm:text-[2rem]", valida ? "text-marino" : "text-lacre")}
           >
             {TITULARES[estado]}
           </h1>

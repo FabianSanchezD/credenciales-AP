@@ -1,70 +1,69 @@
 /*
- * Sistema visual "Sello". Cada app lo importa después de Tailwind:
+ * Sistema visual TEC (manual de marca 70/20/5/5): blanco predominante,
+ * azul institucional #002855 y rojo #EF3340 como acento puntual.
+ * Cada app lo importa después de Tailwind:
  *   @import "tailwindcss";
  *   @import "@repo/ui/estilos.css";
  *   @source "../../../packages/ui/src";
  * Las fuentes las carga cada layout con next/font y exponen
- * --fuente-sans (Public Sans) y --fuente-serif (Newsreader).
+ * --fuente-sans (Roboto), --fuente-mono (Roboto Mono) y --fuente-marca (Tinos).
+ * Un solo tema claro a propósito: el blanco predomina.
  */
 
 @theme {
-  --color-niebla: #f3f5f4;
+  /* Superficies */
+  --color-niebla: #ffffff;
   --color-superficie: #ffffff;
-  --color-hundido: #e9eeec;
-  --color-linea: #d6ddda;
-  --color-linea-fuerte: #b5c0bc;
-  --color-tinta: #17233b;
-  --color-tinta-suave: #4a5568;
-  --color-tinta-tenue: #6b7685;
+  --color-papel: #f7f7f8;
+  --color-hundido: #f6f6f7;
+  --color-linea: #e1e3e7;
+  --color-linea-fuerte: #c9cdd4;
 
-  --color-sello: #0e7a5c;
-  --color-sello-hondo: #0a5f47;
-  --color-sello-claro: #e2f1eb;
-  --color-lacre: #b3261e;
-  --color-lacre-hondo: #8f1d17;
-  --color-lacre-claro: #fbe9e7;
-  --color-ambar: #a15c07;
-  --color-ambar-claro: #fdf0da;
-  --color-marino: #24427a;
-  --color-marino-claro: #e6ecf6;
+  /* Texto */
+  --color-tinta: #14171c;
+  --color-tinta-suave: #555b64;
+  --color-tinta-tenue: #656b74;
 
-  --font-sans: var(--fuente-sans), ui-sans-serif, system-ui, sans-serif;
-  --font-serif: var(--fuente-serif), ui-serif, Georgia, serif;
+  /* Azul institucional: marca, acciones primarias, enlaces */
+  --color-marino: #002855;
+  --color-marino-hondo: #1a3d66;
+  --color-marino-claro: #ececee;
 
-  --radius-control: 0.5rem;
-  --radius-panel: 0.875rem;
-  --radius-documento: 1.25rem;
+  /* Rojo TEC: acento (divisores, pestaña activa) y errores */
+  --color-rojo: #ef3340;
+  --color-lacre: #c4202d;
+  --color-lacre-hondo: #9e1822;
+  --color-lacre-claro: #fdecee;
 
-  --shadow-documento: 0 1px 0 rgb(23 35 59 / 0.04), 0 12px 32px -18px rgb(23 35 59 / 0.35);
-  --shadow-flotante: 0 18px 48px -20px rgb(23 35 59 / 0.45);
-}
+  /* Estados */
+  --color-sello: #1d7a46;
+  --color-sello-hondo: #155c35;
+  --color-sello-claro: #e6f4ec;
+  --color-ambar: #8a5a00;
+  --color-ambar-claro: #fbf2df;
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --color-niebla: #0f1726;
-    --color-superficie: #16203a;
-    --color-hundido: #1c2846;
-    --color-linea: #2b3a5c;
-    --color-linea-fuerte: #3d4f77;
-    --color-tinta: #e8edf6;
-    --color-tinta-suave: #b6c0d3;
-    --color-tinta-tenue: #8d99b0;
-    --color-sello: #3fbf94;
-    --color-sello-hondo: #5fd3ab;
-    --color-sello-claro: #133b33;
-    --color-lacre: #f07a71;
-    --color-lacre-hondo: #f59a93;
-    --color-lacre-claro: #3d1c22;
-    --color-ambar: #f0b45a;
-    --color-ambar-claro: #3a2c16;
-    --color-marino: #8fb0ea;
-    --color-marino-claro: #1c2c50;
-  }
+  --font-sans: var(--fuente-sans), "Roboto", Arial, Helvetica, sans-serif;
+  /* Sin serif en la interfaz: los títulos también van en Roboto. */
+  --font-serif: var(--fuente-sans), "Roboto", Arial, Helvetica, sans-serif;
+  --font-mono: var(--fuente-mono), "Roboto Mono", ui-monospace, Consolas, monospace;
+  --font-marca: var(--fuente-marca), "Tinos", "Times New Roman", Times, serif;
+
+  /* Roboto se carga en 400/500/700; el énfasis del sistema es 500. */
+  --font-weight-semibold: 500;
+
+  --container-6xl: 1180px;
+
+  --radius-control: 7px;
+  --radius-panel: 10px;
+  --radius-documento: 12px;
+
+  --shadow-documento: 0 1px 2px rgb(0 0 0 / 0.04), 0 12px 40px rgb(0 20 50 / 0.06);
+  --shadow-flotante: 0 12px 32px rgb(0 20 50 / 0.12);
 }
 
 @layer base {
   html {
-    color-scheme: light dark;
+    color-scheme: light;
     -webkit-text-size-adjust: 100%;
   }
 
@@ -72,9 +71,8 @@
     background: var(--color-niebla);
     color: var(--color-tinta);
     font-family: var(--font-sans);
-    font-size: 1rem;
-    line-height: 1.55;
-    font-feature-settings: "ss01", "tnum" 0;
+    font-size: 0.9375rem;
+    line-height: 1.5;
     -webkit-font-smoothing: antialiased;
     min-height: 100dvh;
   }
@@ -85,14 +83,14 @@
   }
 
   ::selection {
-    background: var(--color-sello-claro);
+    background: var(--color-marino-claro);
   }
 
   h1,
   h2,
   h3 {
     text-wrap: balance;
-    letter-spacing: -0.01em;
+    line-height: 1.2;
   }
 
   p {

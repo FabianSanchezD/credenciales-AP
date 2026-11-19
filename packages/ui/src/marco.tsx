@@ -5,19 +5,19 @@ import type { ReactNode } from "react";
 import { cn } from "./cn";
 import { abreviar } from "./utilidades";
 
-/** Marca de la plataforma: un sello mínimo y el nombre. */
+/** Marca institucional: logotipo TEC, divisor rojo y nombre del sistema. */
 export function Marca({ app }: { app: string }) {
   return (
-    <span className="flex items-center gap-2.5">
-      <svg viewBox="0 0 32 32" className="size-7 -rotate-[8deg] text-sello" aria-hidden>
-        <circle cx="16" cy="16" r="14" fill="currentColor" opacity="0.14" />
-        <circle cx="16" cy="16" r="14" fill="none" stroke="currentColor" strokeWidth="1.5" />
-        <circle cx="16" cy="16" r="9.5" fill="none" stroke="currentColor" strokeWidth="1" strokeDasharray="1 1.6" />
-        <path d="M11.5 16.5 L14.8 19.6 L20.8 13" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" />
-      </svg>
-      <span className="flex flex-col leading-none">
-        <span className="text-[0.9375rem] font-bold text-tinta">Credenciales AP</span>
-        <span className="mt-1 text-xs font-medium text-tinta-tenue">{app}</span>
+    <span className="flex min-w-0 items-center gap-3 sm:gap-4">
+      <span aria-label="TEC" className="font-marca text-[34px] leading-none tracking-[0.01em] text-marino">
+        TEC
+      </span>
+      <span aria-hidden className="h-[30px] w-[1.5px] shrink-0 bg-rojo" />
+      <span className="flex min-w-0 flex-col leading-tight">
+        <span className="truncate text-base font-medium tracking-[0.01em] text-marino sm:text-[17px]">
+          Credenciales Verificables
+        </span>
+        <span className="truncate text-xs text-tinta-suave">{app}</span>
       </span>
     </span>
   );
@@ -60,43 +60,56 @@ export function Marco({
       >
         Saltar al contenido
       </a>
-      <header className="sticky top-0 z-30 border-b border-linea bg-niebla/90 backdrop-blur">
-        <div className={cn("mx-auto flex h-16 items-center gap-6 px-4 sm:px-6", contenedor)}>
-          <Enlace href="/" className="shrink-0 rounded-control">
+      <header className="sticky top-0 z-30 border-b border-linea bg-superficie">
+        <div className={cn("mx-auto flex min-h-[68px] items-center gap-4 px-4 py-3 sm:px-6", contenedor)}>
+          <Enlace href="/" className="min-w-0 shrink rounded-control">
             <Marca app={app} />
           </Enlace>
-          {enlaces.length > 0 && (
-            <nav aria-label="Principal" className="hidden flex-1 items-center gap-1 md:flex">
-              {enlaces.map((enlace) => (
-                <Enlace
-                  key={enlace.href}
-                  href={enlace.href}
-                  aria-current={enlace.activo ? "page" : undefined}
-                  className={cn(
-                    "rounded-control px-3 py-2 text-sm font-medium transition-colors",
-                    enlace.activo ? "bg-superficie text-tinta shadow-[inset_0_0_0_1px_var(--color-linea)]" : "text-tinta-suave hover:text-tinta",
-                  )}
-                >
-                  {enlace.etiqueta}
-                </Enlace>
-              ))}
-            </nav>
-          )}
-          <div className="ml-auto flex items-center gap-2">
+          <div className="ml-auto flex shrink-0 items-center gap-2">
+            {enlaces.length > 0 && (
+              <nav aria-label="Principal" className="hidden items-center gap-0.5 md:flex">
+                {enlaces.map((enlace) => (
+                  <Enlace
+                    key={enlace.href}
+                    href={enlace.href}
+                    aria-current={enlace.activo ? "page" : undefined}
+                    className={cn(
+                      "px-2.5 py-[7px] text-sm transition-colors",
+                      enlace.activo
+                        ? "font-medium text-marino shadow-[inset_0_-2px_0_var(--color-marino)]"
+                        : "rounded-md text-tinta-suave hover:text-marino",
+                    )}
+                  >
+                    {enlace.etiqueta}
+                  </Enlace>
+                ))}
+              </nav>
+            )}
             {cuenta && (
               <span
                 title={cuenta}
-                className="hidden items-center gap-2 rounded-full border border-linea bg-superficie py-1 pl-2 pr-3 text-sm sm:inline-flex"
+                className="hidden items-center gap-2.5 rounded-[10px] border border-linea bg-superficie p-[5px] sm:inline-flex lg:pr-2.5"
               >
-                <span aria-hidden className="size-2 rounded-full bg-sello" />
-                <code className="font-mono text-[0.8125rem] text-tinta-suave">{abreviar(cuenta)}</code>
+                <span
+                  aria-hidden
+                  className="grid size-[30px] place-items-center rounded-lg bg-marino text-[13px] font-medium text-white"
+                >
+                  {cuenta.slice(0, 1)}
+                </span>
+                <span className="hidden flex-col leading-tight lg:flex">
+                  <code className="font-mono text-[12.5px] text-tinta">{abreviar(cuenta)}</code>
+                  <span className="flex items-center gap-1 text-[11.5px] text-tinta-suave">
+                    <span aria-hidden className="size-1.5 rounded-full bg-sello" />
+                    Conectada
+                  </span>
+                </span>
               </span>
             )}
             {alCerrarSesion && (
               <button
                 type="button"
                 onClick={alCerrarSesion}
-                className="inline-flex h-9 items-center gap-1.5 rounded-control px-2.5 text-sm font-medium text-tinta-suave hover:bg-hundido hover:text-tinta"
+                className="inline-flex h-9 items-center gap-1.5 rounded-control px-2.5 text-sm text-lacre hover:bg-lacre-claro"
               >
                 <LogOut aria-hidden className="size-4" />
                 <span>Salir</span>
@@ -105,15 +118,17 @@ export function Marco({
           </div>
         </div>
         {enlaces.length > 0 && (
-          <nav aria-label="Principal móvil" className="flex gap-1 overflow-x-auto border-t border-linea px-3 py-2 md:hidden">
+          <nav aria-label="Principal móvil" className="flex gap-1 overflow-x-auto border-t border-linea px-3 md:hidden">
             {enlaces.map((enlace) => (
               <Enlace
                 key={enlace.href}
                 href={enlace.href}
                 aria-current={enlace.activo ? "page" : undefined}
                 className={cn(
-                  "shrink-0 rounded-control px-3 py-1.5 text-sm font-medium",
-                  enlace.activo ? "bg-superficie text-tinta" : "text-tinta-suave",
+                  "shrink-0 px-3 py-2.5 text-sm",
+                  enlace.activo
+                    ? "font-medium text-marino shadow-[inset_0_-2px_0_var(--color-marino)]"
+                    : "text-tinta-suave",
                 )}
               >
                 {enlace.etiqueta}
@@ -122,11 +137,11 @@ export function Marco({
           </nav>
         )}
       </header>
-      <main id="contenido" className={cn("mx-auto w-full flex-1 px-4 py-8 sm:px-6 sm:py-10", contenedor)}>
+      <main id="contenido" className={cn("mx-auto w-full flex-1 px-4 pb-14 pt-8 sm:px-6", contenedor)}>
         {children}
       </main>
-      <footer className="border-t border-linea">
-        <div className={cn("mx-auto flex flex-col gap-1 px-4 py-6 text-sm text-tinta-tenue sm:flex-row sm:justify-between sm:px-6", contenedor)}>
+      <footer className="border-t border-linea bg-superficie">
+        <div className={cn("mx-auto flex flex-wrap justify-between gap-x-6 gap-y-2 px-4 py-4 text-[12.5px] text-tinta-suave sm:px-6", contenedor)}>
           <span>Credenciales verificables sobre Stellar. Prueba de concepto para Don Rufino.</span>
           <span>Ningún dato personal se guarda en la blockchain.</span>
         </div>
