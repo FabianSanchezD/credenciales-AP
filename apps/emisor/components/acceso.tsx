@@ -7,7 +7,6 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { createContext, useContext, type ReactNode } from "react";
 import { env } from "../lib/env";
-import { CLAVE_DEMO } from "../lib/use-firmante";
 import { EmisorPendiente, EmisorSuspendido } from "./estado-emisor";
 import { RegistroEmisor } from "./registro-emisor";
 
@@ -74,8 +73,6 @@ export function Acceso({ children }: { children: ReactNode }) {
         titulo="Portal del emisor"
         descripcion="Entra con la cuenta de Stellar de tu institución para crear plantillas, emitir credenciales firmadas y revocarlas cuando haga falta."
         network={env.stellarNetwork}
-        horizonUrl={env.stellarHorizonUrl}
-        claveDemo={CLAVE_DEMO}
         pie={
           <p className="text-sm text-tinta-tenue">
             Si tu institución todavía no está registrada, podrás registrarla después de entrar.

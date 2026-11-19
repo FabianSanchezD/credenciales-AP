@@ -1,10 +1,6 @@
-import { crearFirmanteDemo, type Firmante, type TipoFirmante } from "@repo/cliente";
+import type { Firmante, TipoFirmante } from "@repo/cliente";
 import { aBase64 } from "@repo/credenciales";
 import type { WalletStellarCavos } from "../hooks/use-titular-wallet";
-import { env } from "./env";
-
-/** Clave de la cuenta demo de la wallet en localStorage. */
-export const CLAVE_DEMO = "credenciales-ap:demo:titular";
 
 const CLAVE_METODO = "credenciales-ap:wallet:metodo";
 
@@ -25,14 +21,6 @@ export function crearFirmanteCavos(wallet: WalletStellarCavos): Firmante {
   };
 }
 
-export function crearFirmanteDemoTitular(): Promise<Firmante> {
-  return crearFirmanteDemo({
-    clave: CLAVE_DEMO,
-    network: env.stellarNetwork,
-    horizonUrl: env.stellarHorizonUrl,
-  });
-}
-
 /** Recuerda cómo entró el titular, para mostrarlo en su cuenta tras recargar. */
 export function guardarMetodo(tipo: TipoFirmante | null): void {
   try {
@@ -46,7 +34,7 @@ export function guardarMetodo(tipo: TipoFirmante | null): void {
 export function leerMetodo(): TipoFirmante | null {
   try {
     const valor = window.localStorage.getItem(CLAVE_METODO);
-    return valor === "cavos" || valor === "demo" || valor === "wallet" ? valor : null;
+    return valor === "cavos" || valor === "wallet" ? valor : null;
   } catch {
     return null;
   }

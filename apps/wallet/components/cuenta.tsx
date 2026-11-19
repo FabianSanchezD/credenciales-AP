@@ -22,7 +22,6 @@ import { useTitular } from "./titular";
 
 const METODOS: Record<TipoFirmante, string> = {
   cavos: "Digital Wallet de Cavos (passkey o correo)",
-  demo: "Cuenta demo de este navegador",
   wallet: "Wallet de Stellar",
 };
 
@@ -151,13 +150,6 @@ export function Cuenta() {
       </Panel>
 
       {metodo === "cavos" && <SeccionPasskey />}
-
-      {metodo === "demo" && (
-        <Aviso tipo="advertencia" titulo="Estás usando una cuenta demo">
-          Sirve para conocer la wallet en la red de pruebas. Vive solo en este navegador: si borras
-          sus datos, la pierdes y no se puede recuperar.
-        </Aviso>
-      )}
 
       <Panel className="flex flex-col items-start gap-3">
         <div>

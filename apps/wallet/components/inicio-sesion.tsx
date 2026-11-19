@@ -3,14 +3,12 @@
 import type { Firmante } from "@repo/cliente";
 import { useSesion } from "@repo/cliente/react";
 import { Aviso, Boton, Panel, Sello } from "@repo/ui";
-import { BadgeCheck, Eye, FlaskConical, Fingerprint, KeyRound, Wallet } from "lucide-react";
+import { BadgeCheck, Eye, Fingerprint, KeyRound, Wallet } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { env } from "../lib/env";
 import { mensajeError } from "../lib/errores";
-import { crearFirmanteCavos, crearFirmanteDemoTitular, guardarMetodo } from "../lib/firmantes";
+import { crearFirmanteCavos, guardarMetodo } from "../lib/firmantes";
 import { useTitular } from "./titular";
-
-type Intento = "cavos" | "demo";
 
 const PUNTOS = [
   {
@@ -35,18 +33,17 @@ const PUNTOS = [
 export function InicioSesion() {
   const { iniciarSesion } = useSesion();
   const { cavos } = useTitular();
-  const [enCurso, setEnCurso] = useState<Intento | null>(null);
+  const [enCurso, setEnCurso] = useState(false);
   const [error, setError] = useState<string | null>(null);
   /** El titular pidió entrar con Cavos: al quedar lista la wallet, se abre sesión. */
   const [esperandoCavos, setEsperandoCavos] = useState(false);
   const intentado = useRef<string | null>(null);
 
   const cavosConfigurado = Boolean(env.cavosAppId);
-  const esTestnet = env.stellarNetwork === "testnet";
   const { wallet, estado: estadoCavos } = cavos;
 
-  async function entrar(tipo: Intento, obtener: () => Promise<Firmante>) {
-    setEnCurso(tipo);
+  async function entrar(obtener: () => Promise<Firmante>) {
+    setEnCurso(true);
     setError(null);
     try {
       const firmante = await obtener();
@@ -54,7 +51,7 @@ export function InicioSesion() {
       guardarMetodo(firmante.tipo);
     } catch (e) {
       setError(mensajeError(e, "No se pudo abrir tu wallet. Intenta de nuevo."));
-      setEnCurso(null);
+      setEnCurso(false);
     }
   }
 
@@ -78,7 +75,7 @@ export function InicioSesion() {
   }, [esperandoCavos, wallet, iniciarSesion]);
 
   const abriendoSesionCavos = esperandoCavos && estadoCavos === "lista";
-  const ocupado = enCurso !== null || abriendoSesionCavos;
+  const ocupado = enCurso || abriendoSesionCavos;
 
   function accionCavos() {
     if (!cavosConfigurado) return null;
@@ -121,9 +118,9 @@ export function InicioSesion() {
             tamano="lg"
             anchoCompleto
             icono={<Wallet aria-hidden className="size-5" />}
-            cargando={enCurso === "cavos" || abriendoSesionCavos}
+            cargando={enCurso || abriendoSesionCavos}
             disabled={ocupado}
-            onClick={() => void entrar("cavos", async () => crearFirmanteCavos(wallet))}
+            onClick={() => void entrar(async () => crearFirmanteCavos(wallet))}
           >
             Entrar a mi wallet
           </Boton>
@@ -178,37 +175,15 @@ export function InicioSesion() {
         {!cavosConfigurado && (
           <Aviso tipo="advertencia" titulo="La Digital Wallet de Cavos no está configurada">
             Falta el identificador de la app de Cavos (NEXT_PUBLIC_CAVOS_APP_ID), así que por ahora
-            no se puede crear una wallet.
-            {esTestnet && " Mientras tanto puedes probar con una cuenta demo."}
+            no se puede crear ni abrir una wallet.
           </Aviso>
         )}
 
         {accionCavos()}
 
-        {esTestnet && (
-          <div className="flex flex-col gap-2">
-            <Boton
-              tamano="lg"
-              variante="secundario"
-              anchoCompleto
-              icono={<FlaskConical aria-hidden className="size-5" />}
-              cargando={enCurso === "demo"}
-              disabled={ocupado}
-              onClick={() => void entrar("demo", crearFirmanteDemoTitular)}
-            >
-              Probar con una cuenta demo
-            </Boton>
-            <p className="text-sm text-tinta-tenue">
-              La cuenta demo vive solo en este navegador y usa la red de pruebas de Stellar.
-            </p>
-          </div>
-        )}
-
         {(enCurso || abriendoSesionCavos) && (
           <p role="status" className="text-sm text-tinta-suave">
-            {enCurso === "demo"
-              ? "Preparando la cuenta demo. La primera vez tarda unos segundos."
-              : "Abriendo tu sesión de forma segura."}
+            Abriendo tu sesión de forma segura.
           </p>
         )}
 

@@ -15,7 +15,7 @@ verify again) was run live in the four web apps against Stellar testnet, and
 | Phase 0: ADRs (`docs/adr`) | Done |
 | Phases 1 to 7: API, shared packages, four web apps | Done, tested live on testnet |
 | Phase 8: rate limiting, Redis option, Spanish responsive UI, Tabla 1 indicators | Done |
-| Cavos login in the wallet | Built; needs `NEXT_PUBLIC_CAVOS_APP_ID` to try live (demo account works without it) |
+| Cavos login in the wallet | Built and configured with a development App ID; it is the only titular login (demo accounts removed) |
 | ACTA driver | Built and unit tested with mocks; live test needs an API key (`docs/acta-spike.md`) |
 | Usability test with real testers (RNF-08) and deployment | Pending, needs people and hosting |
 

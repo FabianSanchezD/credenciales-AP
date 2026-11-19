@@ -63,8 +63,8 @@ export function verificarFirmaMensaje(
 }
 
 /**
- * Firma SEP-53 con una semilla secreta (`S...`). Solo para el modo demo y las
- * pruebas: en producción firma la wallet de la persona, nunca la API.
+ * Firma SEP-53 con una semilla secreta (`S...`). Solo para las pruebas y el smoke
+ * de testnet: en producción firma la wallet de la persona, nunca la API.
  */
 export function firmarSep53ConSemilla(semilla: string, mensaje: string): FirmaMensaje {
   const privada = new Uint8Array(StrKey.decodeEd25519SecretSeed(semilla));

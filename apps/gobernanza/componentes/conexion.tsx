@@ -1,13 +1,11 @@
 "use client";
 
-import { conectarWalletStellar, crearFirmanteDemo, ErrorApi, type Firmante } from "@repo/cliente";
+import { conectarWalletStellar, ErrorApi, type Firmante } from "@repo/cliente";
 import { useSesion } from "@repo/cliente/react";
 import { Aviso, Boton, Identificador } from "@repo/ui";
-import { FlaskConical, Wallet } from "lucide-react";
+import { Wallet } from "lucide-react";
 import { useState } from "react";
-import { env, stellarNetwork } from "../lib/env";
-
-const CLAVE_DEMO = "credenciales-ap:demo:gobernanza";
+import { env } from "../lib/env";
 
 type Fallo = { tipo: "no_autorizada"; cuenta: string } | { tipo: "otro"; mensaje: string };
 
@@ -18,22 +16,15 @@ type Fallo = { tipo: "no_autorizada"; cuenta: string } | { tipo: "otro"; mensaje
  */
 export function ConexionGobernanza() {
   const { iniciarSesion } = useSesion();
-  const [enCurso, setEnCurso] = useState<"wallet" | "demo" | null>(null);
+  const [enCurso, setEnCurso] = useState(false);
   const [fallo, setFallo] = useState<Fallo | null>(null);
 
-  async function conectar(tipo: "wallet" | "demo") {
-    setEnCurso(tipo);
+  async function conectar() {
+    setEnCurso(true);
     setFallo(null);
     let firmante: Firmante | null = null;
     try {
-      firmante =
-        tipo === "wallet"
-          ? await conectarWalletStellar(env.stellarNetwork)
-          : await crearFirmanteDemo({
-              clave: CLAVE_DEMO,
-              network: env.stellarNetwork,
-              horizonUrl: stellarNetwork.horizonUrl,
-            });
+      firmante = await conectarWalletStellar(env.stellarNetwork);
       await iniciarSesion(firmante);
     } catch (e) {
       if (e instanceof ErrorApi && e.status === 403 && firmante) {
@@ -48,7 +39,7 @@ export function ConexionGobernanza() {
         });
       }
     } finally {
-      setEnCurso(null);
+      setEnCurso(false);
     }
   }
 
@@ -62,36 +53,19 @@ export function ConexionGobernanza() {
           entidad que autoriza.
         </p>
       </div>
-      <div className="flex flex-col gap-3">
-        <Boton
-          tamano="lg"
-          anchoCompleto
-          icono={<Wallet aria-hidden className="size-5" />}
-          cargando={enCurso === "wallet"}
-          disabled={enCurso !== null}
-          onClick={() => void conectar("wallet")}
-        >
-          Conectar wallet de Stellar
-        </Boton>
-        {env.stellarNetwork === "testnet" && (
-          <Boton
-            tamano="lg"
-            variante="secundario"
-            anchoCompleto
-            icono={<FlaskConical aria-hidden className="size-5" />}
-            cargando={enCurso === "demo"}
-            disabled={enCurso !== null}
-            onClick={() => void conectar("demo")}
-          >
-            Usar cuenta demo de testnet
-          </Boton>
-        )}
-      </div>
+      <Boton
+        tamano="lg"
+        anchoCompleto
+        icono={<Wallet aria-hidden className="size-5" />}
+        cargando={enCurso}
+        disabled={enCurso}
+        onClick={() => void conectar()}
+      >
+        Conectar wallet de Stellar
+      </Boton>
       {enCurso && (
         <p role="status" className="text-sm text-tinta-suave">
-          {enCurso === "wallet"
-            ? "Elige tu wallet y aprueba la firma del mensaje de inicio de sesión."
-            : "Preparando la cuenta demo. La primera vez se fondea con Friendbot y tarda unos segundos."}
+          Elige tu wallet y aprueba la firma del mensaje de inicio de sesión.
         </p>
       )}
       {fallo?.tipo === "no_autorizada" && (

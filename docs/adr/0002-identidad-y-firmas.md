@@ -13,7 +13,7 @@ Hay tres formas de firmar mensajes:
 
 | Esquema | Quién lo usa | Bytes firmados |
 | --- | --- | --- |
-| `sep53` | Emisor y gobernanza con Freighter u otra wallet de Stellar; modo demo | `SHA-256("Stellar Signed Message:\n" + mensaje)` |
+| `sep53` | Emisor y gobernanza con Freighter u otra wallet de Stellar | `SHA-256("Stellar Signed Message:\n" + mensaje)` |
 | `cavos` | Titular con su Digital Wallet de Cavos | `"Cavos Signed Message:\n" + largo + "\n" + mensaje` |
 
 Cavos firma con una llave de control (`controlAddress`) que es firmante de la cuenta del titular.
@@ -29,6 +29,7 @@ Cavos firma con una llave de control (`controlAddress`) que es firmante de la cu
   `GOBERNANZA_ABIERTA=true` permite que cualquier firmante entre a la consola.
 - **Prueba de la credencial**: `DataIntegrityProof` con `cryptosuite: "stellar-sep53-jcs-2026"`.
   El emisor firma el JSON canónico (JCS, RFC 8785) de la credencial sin `proof`.
-- **Modo demo**: cada web app puede generar una cuenta de prueba en testnet guardada en el
-  navegador y fondeada con Friendbot. Sirve para demostrar sin extensiones ni correo.
+- **Sin cuentas demo** (2026-11-18): se quitó el modo demo que generaba en el navegador una cuenta
+  de testnet con su semilla en `localStorage`. El titular entra solo con Cavos, y el emisor y la
+  gobernanza solo con una wallet de Stellar. Las semillas locales quedan para las pruebas y el smoke.
 - Desafíos y sesiones viven en un almacén temporal: Redis si hay `REDIS_URL`, memoria si no.

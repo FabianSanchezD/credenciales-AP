@@ -1,13 +1,7 @@
-import { aBase64, desdeBase64, firmarSep53ConSemilla, type FirmaMensaje } from "@repo/credenciales";
-import {
-  fundWithFriendbot,
-  getAccountState,
-  getNetworkConfig,
-  type StellarNetwork,
-} from "@repo/stellar";
-import { Keypair, TransactionBuilder } from "@stellar/stellar-sdk";
+import { aBase64, desdeBase64, type FirmaMensaje } from "@repo/credenciales";
+import type { StellarNetwork } from "@repo/stellar";
 
-export type TipoFirmante = "demo" | "wallet" | "cavos";
+export type TipoFirmante = "wallet" | "cavos";
 
 /**
  * Quien firma en el navegador. Las llaves privadas nunca salen de aquí: la API
@@ -17,62 +11,11 @@ export interface Firmante {
   tipo: TipoFirmante;
   /** Cuenta Stellar `G...`. */
   address: string;
-  /** Nombre visible, p. ej. "Freighter" o "Cuenta demo". */
+  /** Nombre visible, p. ej. "Freighter" o "Digital Wallet de Cavos". */
   etiqueta: string;
   firmarMensaje(mensaje: string): Promise<FirmaMensaje>;
   firmarTransaccion(xdr: string, networkPassphrase: string): Promise<string>;
   desconectar?(): Promise<void>;
-}
-
-function almacenamiento(): Storage | null {
-  try {
-    return typeof window === "undefined" ? null : window.localStorage;
-  } catch {
-    return null;
-  }
-}
-
-export interface OpcionesDemo {
-  /** Clave de localStorage, distinta por app y rol. */
-  clave: string;
-  network: StellarNetwork;
-  horizonUrl?: string;
-}
-
-/**
- * Cuenta de prueba guardada en el navegador y fondeada con Friendbot. Solo para
- * testnet: permite demostrar los flujos sin extensiones ni correo.
- */
-export async function crearFirmanteDemo(opciones: OpcionesDemo): Promise<Firmante> {
-  if (opciones.network !== "testnet") {
-    throw new Error("La cuenta demo solo existe en testnet");
-  }
-  const store = almacenamiento();
-  let semilla = store?.getItem(opciones.clave) ?? null;
-  if (!semilla) {
-    semilla = Keypair.random().secret();
-    store?.setItem(opciones.clave, semilla);
-  }
-  const keypair = Keypair.fromSecret(semilla);
-  const config = getNetworkConfig("testnet", { horizonUrl: opciones.horizonUrl });
-  const estado = await getAccountState(keypair.publicKey(), config);
-  if (!estado.exists) await fundWithFriendbot(keypair.publicKey(), config);
-
-  return {
-    tipo: "demo",
-    address: keypair.publicKey(),
-    etiqueta: "Cuenta demo (testnet)",
-    firmarMensaje: async (mensaje) => firmarSep53ConSemilla(semilla, mensaje),
-    firmarTransaccion: async (xdr, networkPassphrase) => {
-      const tx = TransactionBuilder.fromXDR(xdr, networkPassphrase);
-      tx.sign(keypair);
-      return tx.toXDR();
-    },
-  };
-}
-
-export function olvidarCuentaDemo(clave: string): void {
-  almacenamiento()?.removeItem(clave);
 }
 
 let kitIniciado = false;
