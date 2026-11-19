@@ -19,11 +19,15 @@ import { useCallback, useState } from "react";
 import { useDatos } from "../lib/use-datos";
 import { AccionesEmisor, anunciarDecision } from "./acciones-emisor";
 import { AvisoError } from "./aviso-error";
+import { DatosSolicitud } from "./datos-solicitud";
 import { InsigniaEstado } from "./estado-emisor";
 import { EnlaceSitio } from "./tarjeta-emisor";
 
 const CONSECUENCIA: Record<Emisor["estado"], string> = {
   pendiente: "Todavía no puede emitir credenciales. Espera una decisión de la entidad que autoriza.",
+  correcciones:
+    "Se le pidió corregir la solicitud. Cuando la reenvíe volverá a quedar pendiente de revisión.",
+  rechazado: "La solicitud fue rechazada. La institución no puede emitir credenciales.",
   autorizado: "Puede emitir credenciales a sus titulares con sus propias plantillas.",
   suspendido:
     "No puede emitir credenciales nuevas. Las credenciales que emitió antes de la suspensión siguen siendo válidas.",
@@ -137,7 +141,8 @@ export function VistaDetalle({ id }: { id: string }) {
               </p>
             </div>
           </Panel>
-          <Panel className="flex flex-col gap-5 lg:order-1">
+          <div className="flex flex-col gap-6 lg:order-1">
+          <Panel className="flex flex-col gap-5">
             <h2 className="text-lg font-semibold text-tinta">Datos de la institución</h2>
             <ListaDatos
               datos={[
@@ -154,6 +159,8 @@ export function VistaDetalle({ id }: { id: string }) {
               ]}
             />
           </Panel>
+          <DatosSolicitud emisorId={emisor.id} />
+          </div>
         </div>
       </div>
     </>

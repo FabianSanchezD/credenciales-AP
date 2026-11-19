@@ -24,6 +24,7 @@ const METODOS: Record<TipoFirmante, string> = {
   cavos: "Digital Wallet de Cavos (passkey o correo)",
   demo: "Cuenta demo de este navegador",
   wallet: "Wallet de Stellar",
+  llave: "Cuenta protegida con contraseña",
 };
 
 function SeccionPasskey() {

@@ -6,7 +6,7 @@ export type VarianteBoton = "primario" | "secundario" | "fantasma" | "peligro";
 
 const VARIANTES: Record<VarianteBoton, string> = {
   primario:
-    "bg-tinta text-superficie hover:bg-marino disabled:bg-linea-fuerte disabled:text-superficie",
+    "bg-accion text-superficie hover:bg-accion-hover disabled:bg-linea-fuerte disabled:text-superficie",
   secundario:
     "bg-superficie text-tinta border border-linea-fuerte hover:border-tinta hover:bg-hundido",
   fantasma: "text-tinta-suave hover:text-tinta hover:bg-hundido",

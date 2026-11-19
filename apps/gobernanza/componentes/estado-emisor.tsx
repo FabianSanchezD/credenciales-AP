@@ -3,13 +3,17 @@ import { Insignia, type TonoEstado } from "@repo/ui";
 
 export const ETIQUETAS_ESTADO: Record<EstadoEmisor, string> = {
   pendiente: "Pendiente",
+  correcciones: "Con correcciones",
   autorizado: "Autorizada",
+  rechazado: "Rechazada",
   suspendido: "Suspendida",
 };
 
 const TONOS: Record<EstadoEmisor, TonoEstado> = {
   pendiente: "ambar",
+  correcciones: "marino",
   autorizado: "sello",
+  rechazado: "lacre",
   suspendido: "lacre",
 };
 

@@ -5,6 +5,7 @@ import { AlmacenModule } from './almacen/almacen.module.js';
 import { AnclajeModule } from './anclaje/anclaje.module.js';
 import { AuthModule } from './auth/auth.module.js';
 import { BovedaModule } from './boveda/boveda.module.js';
+import { CuentasModule } from './cuentas/cuentas.module.js';
 import { ConfigController } from './config/config.controller.js';
 import { validateEnv } from './config/env.js';
 import { DatabaseModule } from './database/database.module.js';
@@ -32,6 +33,7 @@ import { VerificacionModule } from './verificacion/verificacion.module.js';
     AnclajeModule,
     AuthModule,
     EmisoresModule,
+    CuentasModule,
     TitularesModule,
     PlantillasModule,
     BovedaModule,

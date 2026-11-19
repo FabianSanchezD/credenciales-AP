@@ -19,6 +19,12 @@ const FILTROS: Array<{ estado: EstadoEmisor; etiqueta: string; vacio: string; ay
     ayuda: "Cuando una institución se registre en el portal de emisores, su solicitud aparecerá aquí.",
   },
   {
+    estado: "correcciones",
+    etiqueta: "Con correcciones",
+    vacio: "No hay solicitudes con correcciones",
+    ayuda: "Si pides correcciones a una institución, su solicitud espera aquí hasta que la reenvíe.",
+  },
+  {
     estado: "autorizado",
     etiqueta: "Autorizadas",
     vacio: "No hay instituciones autorizadas",
@@ -29,6 +35,12 @@ const FILTROS: Array<{ estado: EstadoEmisor; etiqueta: string; vacio: string; ay
     etiqueta: "Suspendidas",
     vacio: "No hay instituciones suspendidas",
     ayuda: "Si suspendes una institución, aparecerá aquí. Sus credenciales emitidas siguen siendo válidas.",
+  },
+  {
+    estado: "rechazado",
+    etiqueta: "Rechazadas",
+    vacio: "No hay solicitudes rechazadas",
+    ayuda: "Las solicitudes que rechaces quedan aquí como registro.",
   },
 ];
 

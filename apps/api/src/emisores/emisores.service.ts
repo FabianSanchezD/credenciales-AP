@@ -107,6 +107,28 @@ export class EmisoresService {
     });
   }
 
+  /**
+   * La institución corrigió su solicitud: actualiza los datos públicos y la
+   * devuelve a `pendiente` para una nueva revisión.
+   */
+  async reenviar(
+    address: string,
+    datos: Pick<Emisor, 'nombre' | 'categoria' | 'sitioWeb'>,
+  ): Promise<Emisor> {
+    const emisor = await this.delaCuenta(address);
+    if (emisor.estado !== 'correcciones') {
+      throw new ConflictException(
+        'Solo se puede reenviar una solicitud que tiene correcciones pendientes',
+      );
+    }
+    return this.repository.save({
+      ...emisor,
+      ...datos,
+      estado: 'pendiente',
+      actualizadoEn: new Date().toISOString(),
+    });
+  }
+
   /** Decisión de la entidad que autoriza (registro de confianza). */
   async cambiarEstado(id: string, dto: CambiarEstadoDto): Promise<Emisor> {
     const emisor = await this.findOne(id);

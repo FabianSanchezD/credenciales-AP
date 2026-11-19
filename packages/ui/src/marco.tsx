@@ -35,6 +35,9 @@ export interface EnlaceNav {
  */
 export function Marco({
   app,
+  marca,
+  usuario,
+  estiloNav = "pastilla",
   enlaces = [],
   cuenta,
   alCerrarSesion,
@@ -43,6 +46,12 @@ export function Marco({
   children,
 }: {
   app: string;
+  /** Reemplaza la marca por defecto (p. ej. la identidad de una institución). */
+  marca?: ReactNode;
+  /** Reemplaza la cuenta y el botón Salir (p. ej. un menú de perfil). */
+  usuario?: ReactNode;
+  /** `subrayado`: el enlace activo se marca con una línea inferior. */
+  estiloNav?: "pastilla" | "subrayado";
   enlaces?: EnlaceNav[];
   /** Cuenta `G...` en sesión. */
   cuenta?: string | null;
@@ -63,18 +72,27 @@ export function Marco({
       <header className="sticky top-0 z-30 border-b border-linea bg-niebla/90 backdrop-blur">
         <div className={cn("mx-auto flex h-16 items-center gap-6 px-4 sm:px-6", contenedor)}>
           <Enlace href="/" className="shrink-0 rounded-control">
-            <Marca app={app} />
+            {marca ?? <Marca app={app} />}
           </Enlace>
           {enlaces.length > 0 && (
-            <nav aria-label="Principal" className="hidden flex-1 items-center gap-1 md:flex">
+            <nav
+              aria-label="Principal"
+              className={cn("hidden flex-1 items-center gap-1 md:flex", estiloNav === "subrayado" && "justify-end")}
+            >
               {enlaces.map((enlace) => (
                 <Enlace
                   key={enlace.href}
                   href={enlace.href}
                   aria-current={enlace.activo ? "page" : undefined}
                   className={cn(
-                    "rounded-control px-3 py-2 text-sm font-medium transition-colors",
-                    enlace.activo ? "bg-superficie text-tinta shadow-[inset_0_0_0_1px_var(--color-linea)]" : "text-tinta-suave hover:text-tinta",
+                    "px-3 py-2 text-sm font-medium transition-colors",
+                    estiloNav === "subrayado"
+                      ? enlace.activo
+                        ? "text-marino shadow-[inset_0_-2px_0_var(--color-marino)]"
+                        : "rounded-control text-tinta-suave hover:text-marino"
+                      : enlace.activo
+                        ? "rounded-control bg-superficie text-tinta shadow-[inset_0_0_0_1px_var(--color-linea)]"
+                        : "rounded-control text-tinta-suave hover:text-tinta",
                   )}
                 >
                   {enlace.etiqueta}
@@ -83,7 +101,8 @@ export function Marco({
             </nav>
           )}
           <div className="ml-auto flex items-center gap-2">
-            {cuenta && (
+            {usuario}
+            {!usuario && cuenta && (
               <span
                 title={cuenta}
                 className="hidden items-center gap-2 rounded-full border border-linea bg-superficie py-1 pl-2 pr-3 text-sm sm:inline-flex"
@@ -92,7 +111,7 @@ export function Marco({
                 <code className="font-mono text-[0.8125rem] text-tinta-suave">{abreviar(cuenta)}</code>
               </span>
             )}
-            {alCerrarSesion && (
+            {!usuario && alCerrarSesion && (
               <button
                 type="button"
                 onClick={alCerrarSesion}

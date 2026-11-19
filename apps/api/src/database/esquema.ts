@@ -1,6 +1,10 @@
 /**
- * Esquema SQLite. Solo guarda datos institucionales, DIDs y metadatos de
- * emisión: ningún nombre, cédula ni correo de personas (RNF-01, Tabla 7).
+ * Esquema SQLite. Guarda datos institucionales, DIDs y metadatos de emisión:
+ * ningún nombre, cédula ni correo de titulares (RNF-01, Tabla 7).
+ *
+ * Excepción: `registros_emisor` guarda los datos de contacto del
+ * representante legal de cada institución, que pide el registro de cuentas.
+ * Solo los consultan la institución y la entidad que autoriza.
  */
 export const ESQUEMA_SQL = `
 CREATE TABLE IF NOT EXISTS emisores (
@@ -76,6 +80,34 @@ CREATE TABLE IF NOT EXISTS bloqueos (
   PRIMARY KEY (titular_address, emisor_id)
 );
 
+CREATE TABLE IF NOT EXISTS cuentas_emisor (
+  id TEXT PRIMARY KEY,
+  correo TEXT NOT NULL UNIQUE,
+  hash_contrasena TEXT NOT NULL,
+  emisor_id TEXT NOT NULL UNIQUE REFERENCES emisores(id),
+  correo_verificado_en TEXT NOT NULL,
+  creada_en TEXT NOT NULL
+);
+-- Semilla de la cuenta de firma cifrada en el navegador con la contraseña:
+-- la API no puede usarla.
+CREATE TABLE IF NOT EXISTS llaves_emisor (
+  emisor_id TEXT PRIMARY KEY REFERENCES emisores(id),
+  llave_cifrada TEXT NOT NULL
+);
+CREATE TABLE IF NOT EXISTS registros_emisor (
+  emisor_id TEXT PRIMARY KEY REFERENCES emisores(id),
+  tipo_identificacion TEXT NOT NULL,
+  identificacion TEXT NOT NULL,
+  correo TEXT NOT NULL,
+  provincia TEXT NOT NULL,
+  rep_nombre TEXT NOT NULL,
+  rep_tipo_identificacion TEXT NOT NULL,
+  rep_identificacion TEXT NOT NULL,
+  rep_cargo TEXT NOT NULL,
+  rep_correo TEXT NOT NULL,
+  rep_telefono TEXT NOT NULL,
+  actualizado_en TEXT NOT NULL
+);
 CREATE INDEX IF NOT EXISTS idx_titulares_emisor ON titulares(emisor_id);
 CREATE INDEX IF NOT EXISTS idx_plantillas_emisor ON plantillas(emisor_id);
 CREATE INDEX IF NOT EXISTS idx_emisiones_emisor ON emisiones(emisor_id);

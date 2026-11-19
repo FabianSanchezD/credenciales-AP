@@ -27,6 +27,9 @@
   --color-ambar-claro: #fdf0da;
   --color-marino: #24427a;
   --color-marino-claro: #e6ecf6;
+  /* Botón principal. Cada app puede cambiarlo (el emisor usa el azul TEC). */
+  --color-accion: var(--color-tinta);
+  --color-accion-hover: var(--color-marino);
 
   --font-sans: var(--fuente-sans), ui-sans-serif, system-ui, sans-serif;
   --font-serif: var(--fuente-serif), ui-serif, Georgia, serif;

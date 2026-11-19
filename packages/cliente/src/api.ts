@@ -1,7 +1,9 @@
 import type { ContenidoPlantilla, FirmaMensaje } from "@repo/credenciales";
 import type {
   CategoriaEmisor,
+  CodigoEnviado,
   ConfigPublica,
+  CorreoVerificado,
   CredencialEnBoveda,
   CuerpoVerificacion,
   Desafio,
@@ -9,8 +11,13 @@ import type {
   EmisionFirmada,
   EmisionPreparada,
   Emisor,
+  DatosInstitucion,
+  DatosRepresentante,
   EstadoEmisor,
+  NuevaCuentaEmisor,
   Plantilla,
+  LlaveEmisor,
+  RegistroEmisor,
   ResultadoVerificacion,
   ResumenGobernanza,
   RevocacionPreparada,
@@ -98,6 +105,36 @@ export class ClienteApi {
   }
   cerrarSesion() {
     return this.pedir<void>("DELETE", "/auth/sesion");
+  }
+
+  // Cuentas de emisor con correo y contraseña
+  enviarCodigoCorreo(correo: string) {
+    return this.pedir<CodigoEnviado>("POST", "/cuentas/codigos", { correo });
+  }
+  verificarCodigoCorreo(correo: string, codigo: string) {
+    return this.pedir<CorreoVerificado>("POST", "/cuentas/codigos/verificacion", { correo, codigo });
+  }
+  crearCuentaEmisor(datos: NuevaCuentaEmisor) {
+    return this.pedir<Sesion>("POST", "/cuentas", datos);
+  }
+  ingresarConCorreo(correo: string, contrasena: string) {
+    return this.pedir<Sesion>("POST", "/cuentas/sesiones", { correo, contrasena });
+  }
+  /** Datos de registro de la institución en sesión. */
+  miRegistro() {
+    return this.pedir<RegistroEmisor>("GET", "/cuentas/registro");
+  }
+  /** Corrige los datos y reenvía la solicitud (solo con estado `correcciones`). */
+  corregirRegistro(datos: { institucion: Omit<DatosInstitucion, "correo">; representante: DatosRepresentante }) {
+    return this.pedir<RegistroEmisor>("PUT", "/cuentas/registro", datos);
+  }
+  /** Llave de firma cifrada de la institución en sesión. */
+  miLlave() {
+    return this.pedir<LlaveEmisor>("GET", "/cuentas/llave");
+  }
+  /** Solo la entidad que autoriza. */
+  obtenerRegistroEmisor(emisorId: string) {
+    return this.pedir<RegistroEmisor>("GET", `/cuentas/registros/${emisorId}`);
   }
 
   // Emisores y registro de confianza

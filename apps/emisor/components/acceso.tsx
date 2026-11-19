@@ -2,22 +2,22 @@
 
 import type { Emisor } from "@repo/cliente";
 import { useSesion } from "@repo/cliente/react";
-import { Cargando, Marco, PanelConexion } from "@repo/ui";
+import { Cargando, Marco } from "@repo/ui";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { createContext, useContext, type ReactNode } from "react";
-import { env } from "../lib/env";
-import { CLAVE_DEMO } from "../lib/use-firmante";
-import { EmisorPendiente, EmisorSuspendido } from "./estado-emisor";
+import { EmisorCorrecciones, EmisorPendiente, EmisorRechazado, EmisorSuspendido } from "./estado-emisor";
+import { Ingreso } from "./ingreso";
+import { MarcaTec } from "./marca-tec";
+import { MenuPerfil } from "./menu-perfil";
 import { RegistroEmisor } from "./registro-emisor";
 
 const NAVEGACION = [
   { href: "/", etiqueta: "Inicio" },
-  { href: "/emitir", etiqueta: "Emitir" },
-  { href: "/emisiones", etiqueta: "Emisiones" },
   { href: "/plantillas", etiqueta: "Plantillas" },
   { href: "/titulares", etiqueta: "Titulares" },
-  { href: "/institucion", etiqueta: "Institución" },
+  { href: "/emitir", etiqueta: "Emitir" },
+  { href: "/emisiones", etiqueta: "Emisiones" },
 ];
 
 function Enlace({
@@ -52,12 +52,14 @@ function activo(pathname: string, href: string): boolean {
 }
 
 /**
- * Decide qué ve la persona según su sesión: conexión, registro de la
- * institución, espera de autorización, suspensión o el portal completo.
+ * Decide qué ve la persona según su sesión: inicio de sesión con correo,
+ * creación de la cuenta (/registro), revisión de la solicitud (pendiente,
+ * correcciones o rechazada), suspensión o el portal completo.
  */
 export function Acceso({ children }: { children: ReactNode }) {
   const { estado, sesion, cerrarSesion } = useSesion();
   const pathname = usePathname();
+  const router = useRouter();
   const emisor = sesion?.emisor ?? null;
   const autorizado = emisor?.estado === "autorizado";
 
@@ -69,24 +71,16 @@ export function Acceso({ children }: { children: ReactNode }) {
   if (estado === "cargando") {
     contenido = <Cargando texto="Revisando tu sesión" />;
   } else if (estado === "sin_sesion" || !sesion) {
-    contenido = (
-      <PanelConexion
-        titulo="Portal del emisor"
-        descripcion="Entra con la cuenta de Stellar de tu institución para crear plantillas, emitir credenciales firmadas y revocarlas cuando haga falta."
-        network={env.stellarNetwork}
-        horizonUrl={env.stellarHorizonUrl}
-        claveDemo={CLAVE_DEMO}
-        pie={
-          <p className="text-sm text-tinta-tenue">
-            Si tu institución todavía no está registrada, podrás registrarla después de entrar.
-          </p>
-        }
-      />
-    );
+    contenido = pathname.startsWith("/registro") ? <RegistroEmisor /> : <Ingreso />;
   } else if (!emisor) {
+    // Sesión de una cuenta sin institución (p. ej. una sesión antigua con wallet).
     contenido = <RegistroEmisor />;
   } else if (emisor.estado === "pendiente") {
     contenido = <EmisorPendiente emisor={emisor} />;
+  } else if (emisor.estado === "correcciones") {
+    contenido = <EmisorCorrecciones emisor={emisor} />;
+  } else if (emisor.estado === "rechazado") {
+    contenido = <EmisorRechazado emisor={emisor} />;
   } else if (emisor.estado === "suspendido") {
     contenido = <EmisorSuspendido emisor={emisor} />;
   } else {
@@ -96,10 +90,11 @@ export function Acceso({ children }: { children: ReactNode }) {
   return (
     <Marco
       app="Portal del emisor"
+      marca={<MarcaTec />}
+      estiloNav="subrayado"
       ancho="amplio"
       enlaces={enlaces}
-      cuenta={sesion?.address ?? null}
-      alCerrarSesion={sesion ? () => void cerrarSesion() : undefined}
+      usuario={sesion ? <MenuPerfil alCerrarSesion={() => void cerrarSesion().then(() => router.push("/"))} /> : undefined}
       componenteEnlace={Enlace}
     >
       {contenido}

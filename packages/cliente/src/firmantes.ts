@@ -7,7 +7,7 @@ import {
 } from "@repo/stellar";
 import { Keypair, TransactionBuilder } from "@stellar/stellar-sdk";
 
-export type TipoFirmante = "demo" | "wallet" | "cavos";
+export type TipoFirmante = "demo" | "wallet" | "cavos" | "llave";
 
 /**
  * Quien firma en el navegador. Las llaves privadas nunca salen de aquí: la API

@@ -24,6 +24,10 @@ export interface ContextoSesion {
   firmante: Firmante | null;
   /** Firma un desafío con el firmante y abre sesión con el rol de la app. */
   iniciarSesion: (firmante: Firmante) => Promise<Sesion>;
+  /** Entra con correo y contraseña (cuentas de emisor). */
+  iniciarConContrasena: (correo: string, contrasena: string) => Promise<Sesion>;
+  /** Adopta una sesión que la API ya abrió (p. ej. al crear la cuenta). */
+  adoptarSesion: (sesion: Sesion, firmante?: Firmante | null) => void;
   /** Vuelve a asociar un firmante sin pedir otra firma (p. ej. tras recargar). */
   establecerFirmante: (firmante: Firmante | null) => void;
   /** Vuelve a leer la sesión (p. ej. tras registrar el emisor). */
@@ -119,6 +123,23 @@ export function SesionProvider({
     [api, guardar, rol],
   );
 
+  const iniciarConContrasena = useCallback(
+    async (correo: string, contrasena: string) => {
+      const creada = await api.ingresarConCorreo(correo, contrasena);
+      guardar(creada);
+      return creada;
+    },
+    [api, guardar],
+  );
+
+  const adoptarSesion = useCallback(
+    (nueva: Sesion, nuevoFirmante: Firmante | null = null) => {
+      setFirmante(nuevoFirmante);
+      guardar(nueva);
+    },
+    [guardar],
+  );
+
   const cerrarSesion = useCallback(async () => {
     try {
       if (tokenRef.current) await api.cerrarSesion();
@@ -137,11 +158,13 @@ export function SesionProvider({
       sesion,
       firmante,
       iniciarSesion,
+      iniciarConContrasena,
+      adoptarSesion,
       establecerFirmante: setFirmante,
       refrescar,
       cerrarSesion,
     }),
-    [api, estado, sesion, firmante, iniciarSesion, refrescar, cerrarSesion],
+    [api, estado, sesion, firmante, iniciarSesion, iniciarConContrasena, adoptarSesion, refrescar, cerrarSesion],
   );
 
   return <Contexto.Provider value={valor}>{children}</Contexto.Provider>;

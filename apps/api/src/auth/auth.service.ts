@@ -82,6 +82,18 @@ export class AuthService {
   }
 
   async crearSesion({ desafioId, firma }: CrearSesionDto): Promise<Sesion> {
+    const desafio = await this.consumirDesafio(desafioId, firma);
+    return this.abrirSesion(desafio.rol, desafio.address);
+  }
+
+  /**
+   * Valida y gasta un desafío firmado. Devuelve el rol y la cuenta que
+   * demostró controlar quien firmó (también lo usa el registro de cuentas).
+   */
+  async consumirDesafio(
+    desafioId: string,
+    firma: FirmaMensaje,
+  ): Promise<DesafioPendiente> {
     const guardado = await this.almacen.get(claveDesafio(desafioId));
     if (!guardado) {
       throw new UnauthorizedException(
@@ -97,12 +109,16 @@ export class AuthService {
 
     this.exigirGobernanza(desafio.rol, desafio.address);
     await this.verificarFirma(desafio, firma);
+    return desafio;
+  }
 
+  /** Abre una sesión para una cuenta ya autenticada (firma o contraseña). */
+  async abrirSesion(rol: Rol, address: string): Promise<Sesion> {
     const token = randomBytes(32).toString('base64url');
     const sesion: SesionActiva = {
-      rol: desafio.rol,
-      address: desafio.address,
-      did: this.stellar.toDid(desafio.address),
+      rol,
+      address,
+      did: this.stellar.toDid(address),
       expiraEn: new Date(Date.now() + TTL_SESION_SEGUNDOS * 1000).toISOString(),
     };
     await this.almacen.set(

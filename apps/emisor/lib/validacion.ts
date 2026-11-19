@@ -1,3 +1,4 @@
+import { DOMINIOS_CORREO_PERSONAL, FORMATOS_ID, type TipoIdentificacion } from "@repo/cliente";
 import { parseDidStellar } from "@repo/stellar";
 import { env } from "./env";
 
@@ -26,4 +27,33 @@ export function validarDid(valor: string): string | null {
     return `Ese DID es de la red ${did.network} y este portal usa ${env.stellarNetwork}. Pide al titular el DID de su Digital Wallet en ${env.stellarNetwork}.`;
   }
   return null;
+}
+
+/** Error del correo, o `null`. `institucional` rechaza proveedores personales. */
+export function validarCorreo(valor: string, institucional = false): string | null {
+  const texto = valor.trim().toLowerCase();
+  if (!texto) return "Escribe el correo.";
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(texto)) return "Escribe un correo válido, como nombre@institucion.ac.cr";
+  const dominio = texto.split("@")[1] ?? "";
+  if (institucional && (DOMINIOS_CORREO_PERSONAL as readonly string[]).includes(dominio)) {
+    return "Usa el correo institucional, no uno personal.";
+  }
+  return null;
+}
+
+export function validarIdentificacion(tipo: TipoIdentificacion, valor: string): string | null {
+  const texto = valor.trim();
+  if (!texto) return "Escribe la identificación.";
+  const { patron, ejemplo } = FORMATOS_ID[tipo];
+  return patron.test(texto) ? null : `El formato esperado es ${ejemplo}.`;
+}
+
+/** Reglas de la contraseña con su estado, para mostrarlas en vivo. */
+export function reglasContrasena(valor: string) {
+  return [
+    { regla: "10 caracteres o más", cumple: valor.length >= 10 },
+    { regla: "Una mayúscula", cumple: /[A-ZÁÉÍÓÚÑ]/.test(valor) },
+    { regla: "Un número", cumple: /\d/.test(valor) },
+    { regla: "Un símbolo", cumple: /[^\p{L}\p{N}\s]/u.test(valor) },
+  ];
 }

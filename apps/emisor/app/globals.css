@@ -1,3 +1,42 @@
 @import "tailwindcss";
 @import "@repo/ui/estilos.css";
 @source "../../../packages/ui/src";
+
+/*
+ * Identidad del TEC para el portal del emisor (diseño "Portal de Emisores AP").
+ * Un solo tema claro a propósito: el blanco predomina (manual TEC 70/20/5/5).
+ * `html:root` gana al modo oscuro de @repo/ui; las otras apps no cambian.
+ */
+html:root {
+  color-scheme: light;
+  --color-niebla: #ffffff;
+  --color-superficie: #ffffff;
+  --color-hundido: #f7f7f8;
+  --color-linea: #e1e3e7;
+  --color-linea-fuerte: #c9ccd2;
+  --color-tinta: #14171c;
+  --color-tinta-suave: #555b64;
+  --color-tinta-tenue: #6b7079;
+
+  --color-sello: #1d7a46;
+  --color-sello-hondo: #155c34;
+  --color-sello-claro: #e6f4ec;
+  --color-lacre: #c4202d;
+  --color-lacre-hondo: #a01a25;
+  --color-lacre-claro: #fdecee;
+  --color-ambar: #8a5a00;
+  --color-ambar-claro: #fbf2df;
+  --color-marino: #002855;
+  --color-marino-claro: #eef1f6;
+
+  --color-accion: #002855;
+  --color-accion-hover: #1a3d66;
+}
+
+/* Colores y letras de marca que no existen en Sello. */
+@theme {
+  --color-tec-azul: #002855;
+  --color-tec-rojo: #ef3340;
+  --font-marca: var(--fuente-marca), "Times New Roman", Times, serif;
+  --font-mono: var(--fuente-mono), ui-monospace, Consolas, monospace;
+}

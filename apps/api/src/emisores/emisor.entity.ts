@@ -10,17 +10,25 @@ export const CATEGORIAS_EMISOR = [
   'bootcamp',
   'plataforma_cursos',
   'empresa_certificadora',
+  'universidad_publica',
+  'universidad_privada',
+  'colegio_profesional',
+  'instituto_tecnico',
+  'organizacion_empresarial',
 ] as const satisfies readonly CategoriaContrato[];
 
 export type CategoriaEmisor = (typeof CATEGORIAS_EMISOR)[number];
 
 /**
  * `pendiente` hasta que la entidad que autoriza (consola de gobernanza) lo
- * habilite. Solo un emisor `autorizado` puede emitir credenciales.
+ * habilite. Puede pedir `correcciones` (la institución corrige y reenvía) o
+ * dejar la solicitud `rechazado`. Solo un emisor `autorizado` puede emitir.
  */
 export const ESTADOS_EMISOR = [
   'pendiente',
+  'correcciones',
   'autorizado',
+  'rechazado',
   'suspendido',
 ] as const satisfies readonly EstadoContrato[];
 

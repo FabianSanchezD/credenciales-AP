@@ -45,11 +45,17 @@ puede usar la cuenta demo.
 
 1. **Gobernanza** (3003): "Usar cuenta demo de testnet". Con `GOBERNANZA_ABIERTA=true` en la API,
    cualquier cuenta entra en desarrollo.
-2. **Emisor** (3001): entrar con la cuenta demo, registrar la institución.
-3. **Gobernanza**: autorizar la institución con un motivo.
+2. **Emisor** (3001): "Crear cuenta". En testnet, "Usar datos de ejemplo" rellena el formulario y
+   el código de verificación del correo aparece en pantalla (todavía no se envían correos). La
+   cuenta de firma de la institución se crea por detrás: su llave se cifra en el navegador con la
+   contraseña y la API solo guarda la versión cifrada.
+3. **Gobernanza**: revisar la solicitud (datos de la institución y del representante) y
+   autorizarla, pedir correcciones o rechazarla, siempre con un motivo. Con correcciones, la
+   institución corrige sus datos en el portal y la reenvía.
 4. **Wallet** (3000): entrar y copiar el DID.
-5. **Emisor**: crear una plantilla, inscribir el DID del titular y emitir. La wallet firma la
-   credencial y la transacción que ancla el hash en Stellar.
+5. **Emisor**: entrar con el correo y la contraseña, crear una plantilla, inscribir el DID del
+   titular y emitir. La llave de la institución firma la credencial y la transacción que ancla el
+   hash en Stellar (tras recargar la página se pide la contraseña para firmar).
 6. **Wallet**: abrir la credencial, elegir qué revelar y compartir el enlace o el QR.
 7. **Verificador** (3002): abrir el enlace. Resultado: credencial válida.
 8. **Emisor**: revocar. El mismo enlace ahora muestra "Credencial revocada".

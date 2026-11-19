@@ -18,6 +18,11 @@ export const CATEGORIAS_EMISOR = [
   "bootcamp",
   "plataforma_cursos",
   "empresa_certificadora",
+  "universidad_publica",
+  "universidad_privada",
+  "colegio_profesional",
+  "instituto_tecnico",
+  "organizacion_empresarial",
 ] as const;
 export type CategoriaEmisor = (typeof CATEGORIAS_EMISOR)[number];
 
@@ -26,9 +31,28 @@ export const ETIQUETAS_CATEGORIA: Record<CategoriaEmisor, string> = {
   bootcamp: "Bootcamp",
   plataforma_cursos: "Plataforma de cursos",
   empresa_certificadora: "Empresa certificadora",
+  universidad_publica: "Universidad pública",
+  universidad_privada: "Universidad privada",
+  colegio_profesional: "Colegio profesional",
+  instituto_tecnico: "Instituto de formación técnica",
+  organizacion_empresarial: "Organización empresarial",
 };
 
-export const ESTADOS_EMISOR = ["pendiente", "autorizado", "suspendido"] as const;
+/** Categorías que ofrece el registro de cuentas (las anteriores siguen siendo válidas). */
+export const CATEGORIAS_REGISTRO = [
+  "universidad_publica",
+  "universidad_privada",
+  "colegio_profesional",
+  "instituto_tecnico",
+  "organizacion_empresarial",
+] as const satisfies readonly CategoriaEmisor[];
+
+/**
+ * `pendiente` mientras la entidad que autoriza revisa la solicitud; puede
+ * pedir `correcciones` (la institución corrige y reenvía) o dejarla
+ * `rechazado`.
+ */
+export const ESTADOS_EMISOR = ["pendiente", "correcciones", "autorizado", "rechazado", "suspendido"] as const;
 export type EstadoEmisor = (typeof ESTADOS_EMISOR)[number];
 
 export interface Emisor {
@@ -45,6 +69,105 @@ export interface Emisor {
   suspendidoEn: string | null;
   creadoEn: string;
   actualizadoEn: string;
+}
+
+export const PROVINCIAS = [
+  "San José",
+  "Alajuela",
+  "Cartago",
+  "Heredia",
+  "Guanacaste",
+  "Puntarenas",
+  "Limón",
+] as const;
+export type Provincia = (typeof PROVINCIAS)[number];
+
+export const TIPOS_ID_INSTITUCION = ["cedula_juridica", "cedula_fisica"] as const;
+export type TipoIdInstitucion = (typeof TIPOS_ID_INSTITUCION)[number];
+export const TIPOS_ID_PERSONA = ["cedula_fisica", "dimex", "pasaporte"] as const;
+export type TipoIdPersona = (typeof TIPOS_ID_PERSONA)[number];
+export type TipoIdentificacion = TipoIdInstitucion | TipoIdPersona;
+
+export const ETIQUETAS_TIPO_ID: Record<TipoIdentificacion, string> = {
+  cedula_juridica: "Cédula jurídica",
+  cedula_fisica: "Cédula física",
+  dimex: "DIMEX",
+  pasaporte: "Pasaporte",
+};
+
+/** Formato esperado de cada identificación (con guiones donde aplica). */
+export const FORMATOS_ID: Record<TipoIdentificacion, { patron: RegExp; ejemplo: string }> = {
+  cedula_juridica: { patron: /^\d-\d{3}-\d{6}$/, ejemplo: "3-101-123456" },
+  cedula_fisica: { patron: /^\d-\d{4}-\d{4}$/, ejemplo: "1-1234-5678" },
+  dimex: { patron: /^\d{11,12}$/, ejemplo: "155812345678" },
+  pasaporte: { patron: /^[A-Z0-9]{5,20}$/, ejemplo: "A1234567" },
+};
+
+/** Proveedores de correo personal: la cuenta debe usar un correo institucional. */
+export const DOMINIOS_CORREO_PERSONAL = [
+  "gmail.com",
+  "hotmail.com",
+  "outlook.com",
+  "yahoo.com",
+  "icloud.com",
+  "live.com",
+] as const;
+
+export interface DatosInstitucion {
+  nombre: string;
+  categoria: CategoriaEmisor;
+  tipoIdentificacion: TipoIdInstitucion;
+  identificacion: string;
+  /** Correo institucional; también es el usuario de la cuenta. */
+  correo: string;
+  sitioWeb: string;
+  provincia: Provincia;
+}
+
+export interface DatosRepresentante {
+  nombre: string;
+  tipoIdentificacion: TipoIdPersona;
+  identificacion: string;
+  cargo: string;
+  correo: string;
+  telefono: string;
+}
+
+/** Datos de registro de una institución. Solo los ven ella y la entidad que autoriza. */
+export interface RegistroEmisor {
+  emisorId: string;
+  institucion: DatosInstitucion;
+  representante: DatosRepresentante;
+  correoVerificadoEn: string;
+  actualizadoEn: string;
+}
+
+export interface CodigoEnviado {
+  expiraEn: string;
+  /** Solo fuera de producción, mientras no haya envío de correos. */
+  codigoDesarrollo?: string;
+}
+
+export interface CorreoVerificado {
+  /** Comprobante de un solo uso para crear la cuenta. */
+  verificacionId: string;
+  expiraEn: string;
+}
+
+export interface NuevaCuentaEmisor {
+  institucion: DatosInstitucion;
+  representante: DatosRepresentante;
+  contrasena: string;
+  verificacionId: string;
+  /** Desafío firmado con la cuenta de firma de la institución (rol `emisor`). */
+  desafioId: string;
+  firma: FirmaMensaje;
+  /** Semilla de la cuenta de firma cifrada con la contraseña en el navegador. */
+  llaveCifrada: string;
+}
+
+export interface LlaveEmisor {
+  llaveCifrada: string;
 }
 
 export interface Desafio {

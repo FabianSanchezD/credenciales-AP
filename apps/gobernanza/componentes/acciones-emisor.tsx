@@ -3,19 +3,64 @@
 import type { Emisor, EstadoEmisor } from "@repo/cliente";
 import { useSesion } from "@repo/cliente/react";
 import { AreaTexto, Aviso, Boton, Campo, Dialogo } from "@repo/ui";
-import { ShieldCheck, ShieldOff } from "lucide-react";
+import { MessageSquareWarning, ShieldCheck, ShieldOff, ShieldX } from "lucide-react";
 import { useState, type FormEvent } from "react";
 import { AvisoError } from "./aviso-error";
 
 const MINIMO_MOTIVO = 3;
 
-type Decision = Extract<EstadoEmisor, "autorizado" | "suspendido">;
+type Decision = Extract<EstadoEmisor, "autorizado" | "suspendido" | "correcciones" | "rechazado">;
+
+/** Textos de cada decisión: botón, diálogo y ejemplo de motivo. */
+const DECISIONES: Record<
+  Decision,
+  { etiqueta: string; titulo: string; descripcion: string; ejemplo: string; peligro: boolean }
+> = {
+  autorizado: {
+    etiqueta: "Autorizar institución",
+    titulo: "Autorizar a",
+    descripcion:
+      "Desde este momento la institución podrá emitir credenciales a sus titulares con sus propias plantillas.",
+    ejemplo: "Por ejemplo: acreditación vigente verificada en la sesión del consejo.",
+    peligro: false,
+  },
+  correcciones: {
+    etiqueta: "Pedir correcciones",
+    titulo: "Pedir correcciones a",
+    descripcion:
+      "La institución verá el motivo, podrá corregir sus datos y reenviar la solicitud. Mientras tanto no puede emitir.",
+    ejemplo: "Por ejemplo: el correo debe ser del dominio institucional y falta la personería jurídica.",
+    peligro: false,
+  },
+  rechazado: {
+    etiqueta: "Rechazar",
+    titulo: "Rechazar a",
+    descripcion: "La solicitud queda rechazada y la institución no podrá emitir credenciales con esta cuenta.",
+    ejemplo: "Por ejemplo: la institución no está acreditada para otorgar estos títulos.",
+    peligro: true,
+  },
+  suspendido: {
+    etiqueta: "Suspender institución",
+    titulo: "Suspender a",
+    descripcion:
+      "La institución no podrá emitir credenciales nuevas. Las credenciales que emitió antes de la suspensión siguen siendo válidas y verificables.",
+    ejemplo: "Por ejemplo: acreditación vencida, en revisión por el consejo.",
+    peligro: true,
+  },
+};
 
 /** Texto que anuncia el resultado de una decisión. */
 export function anunciarDecision(emisor: Emisor): string {
-  return emisor.estado === "autorizado"
-    ? `${emisor.nombre} quedó autorizada. Desde ahora puede emitir credenciales.`
-    : `${emisor.nombre} quedó suspendida. No puede emitir credenciales nuevas; las ya emitidas siguen siendo válidas.`;
+  switch (emisor.estado) {
+    case "autorizado":
+      return `${emisor.nombre} quedó autorizada. Desde ahora puede emitir credenciales.`;
+    case "correcciones":
+      return `Se pidieron correcciones a ${emisor.nombre}. La solicitud volverá a pendientes cuando la reenvíe.`;
+    case "rechazado":
+      return `La solicitud de ${emisor.nombre} quedó rechazada.`;
+    default:
+      return `${emisor.nombre} quedó suspendida. No puede emitir credenciales nuevas; las ya emitidas siguen siendo válidas.`;
+  }
 }
 
 /**
@@ -44,6 +89,26 @@ export function AccionesEmisor({
           >
             Autorizar institución
           </Boton>
+        )}
+        {emisor.estado === "pendiente" && (
+          <>
+            <Boton
+              tamano={tamano}
+              variante="secundario"
+              icono={<MessageSquareWarning aria-hidden className="size-4" />}
+              onClick={() => setDecision("correcciones")}
+            >
+              Pedir correcciones
+            </Boton>
+            <Boton
+              tamano={tamano}
+              variante="secundario"
+              icono={<ShieldX aria-hidden className="size-4" />}
+              onClick={() => setDecision("rechazado")}
+            >
+              Rechazar
+            </Boton>
+          </>
         )}
         {emisor.estado === "autorizado" && (
           <Boton
@@ -111,18 +176,15 @@ function DialogoDecision({
     }
   }
 
-  const etiqueta = autorizar ? "Autorizar institución" : "Suspender institución";
+  const textos = DECISIONES[decision];
+  const etiqueta = textos.etiqueta;
 
   return (
     <Dialogo
       abierto
       alCerrar={alCerrar}
-      titulo={autorizar ? `Autorizar a ${emisor.nombre}` : `Suspender a ${emisor.nombre}`}
-      descripcion={
-        autorizar
-          ? "Desde este momento la institución podrá emitir credenciales a sus titulares con sus propias plantillas."
-          : "La institución no podrá emitir credenciales nuevas. Las credenciales que emitió antes de la suspensión siguen siendo válidas y verificables."
-      }
+      titulo={`${textos.titulo} ${emisor.nombre}`}
+      descripcion={textos.descripcion}
       acciones={
         <>
           <Boton variante="fantasma" onClick={alCerrar} disabled={enviando}>
@@ -131,7 +193,7 @@ function DialogoDecision({
           <Boton
             type="submit"
             form={formulario}
-            variante={autorizar ? "primario" : "peligro"}
+            variante={textos.peligro ? "peligro" : "primario"}
             cargando={enviando}
           >
             {etiqueta}
@@ -159,11 +221,7 @@ function DialogoDecision({
               minLength={MINIMO_MOTIVO}
               maxLength={500}
               disabled={enviando}
-              placeholder={
-                autorizar
-                  ? "Por ejemplo: acreditación vigente verificada en la sesión del consejo."
-                  : "Por ejemplo: acreditación vencida, en revisión por el consejo."
-              }
+              placeholder={textos.ejemplo}
             />
           )}
         </Campo>
