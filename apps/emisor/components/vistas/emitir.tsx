@@ -2,6 +2,7 @@
 
 import type { Emision, Plantilla, TitularInscrito, TransaccionPorFirmar } from "@repo/cliente";
 import { useSesion } from "@repo/cliente/react";
+import { ETIQUETAS_TIPO_IDENTIFICACION, TIPOS_IDENTIFICACION, type TipoIdentificacion } from "@repo/credenciales";
 import {
   Aviso,
   Boton,
@@ -106,8 +107,16 @@ export function VistaEmitir() {
   const [plantillaId, setPlantillaId] = useState(parametros.get("plantilla") ?? "");
   const [titularElegido, setTitularElegido] = useState(parametros.get("titular") ?? "");
   const [didPegado, setDidPegado] = useState("");
+  const [nombreTitular, setNombreTitular] = useState("");
+  const [tipoIdentificacion, setTipoIdentificacion] = useState<TipoIdentificacion | "">("");
+  const [numeroIdentificacion, setNumeroIdentificacion] = useState("");
   const [calificacion, setCalificacion] = useState("");
-  const [errores, setErrores] = useState<{ plantilla?: string; titular?: string }>({});
+  const [errores, setErrores] = useState<{
+    plantilla?: string;
+    titular?: string;
+    nombre?: string;
+    identificacion?: string;
+  }>({});
   const [proceso, setProceso] = useState<Proceso | null>(() => procesoRetomado(retomarId));
   const [hoy] = useState(() => new Date().toISOString());
 
@@ -135,6 +144,9 @@ export function VistaEmitir() {
     if (!plantilla || plantilla.archivada) nuevos.plantilla = "Elige una plantilla activa.";
     const problema = validarDid(titularDid);
     if (problema) nuevos.titular = seleccion === "" ? "Elige un titular o pega su DID." : problema;
+    if (nombreTitular.trim().length < 2) nuevos.nombre = "Escribe el nombre completo del titular.";
+    if (tipoIdentificacion && !numeroIdentificacion.trim()) nuevos.identificacion = "Escribe el número del documento.";
+    if (!tipoIdentificacion && numeroIdentificacion.trim()) nuevos.identificacion = "Elige el tipo de documento.";
     setErrores(nuevos);
     return Object.keys(nuevos).length === 0;
   }
@@ -148,6 +160,11 @@ export function VistaEmitir() {
         const preparada = await api.prepararEmision({
           plantillaId: plantilla.id,
           titularDid,
+          titularNombre: nombreTitular.trim(),
+          identificacion:
+            tipoIdentificacion && numeroIdentificacion.trim()
+              ? { tipo: tipoIdentificacion, numero: numeroIdentificacion.trim() }
+              : undefined,
           calificacion: calificacion.trim() || undefined,
         });
         guardarPaso({ emisionId: preparada.emision.id, mensajeAFirmar: preparada.mensajeAFirmar });
@@ -188,6 +205,9 @@ export function VistaEmitir() {
     setProceso(null);
     setTitularElegido("");
     setDidPegado("");
+    setNombreTitular("");
+    setTipoIdentificacion("");
+    setNumeroIdentificacion("");
     setCalificacion("");
     setErrores({});
     if (parametros.size > 0) router.replace("/emitir");
@@ -316,6 +336,58 @@ export function VistaEmitir() {
                 </Campo>
               )}
               <Campo
+                etiqueta="Nombre completo del titular"
+                error={errores.nombre}
+                ayuda="Tal como aparece en los registros de tu institución."
+              >
+                {(props) => (
+                  <Entrada
+                    {...props}
+                    value={nombreTitular}
+                    maxLength={200}
+                    autoComplete="off"
+                    onChange={(e) => setNombreTitular(e.target.value)}
+                  />
+                )}
+              </Campo>
+              <div className="grid gap-5">
+                <Campo etiqueta="Identificación" opcional error={errores.identificacion}>
+                  {(props) => (
+                    <Selector
+                      {...props}
+                      value={tipoIdentificacion}
+                      onChange={(e) => setTipoIdentificacion(e.target.value as TipoIdentificacion | "")}
+                    >
+                      <option value="">Sin identificación</option>
+                      {TIPOS_IDENTIFICACION.map((tipo) => (
+                        <option key={tipo} value={tipo}>
+                          {ETIQUETAS_TIPO_IDENTIFICACION[tipo]}
+                        </option>
+                      ))}
+                    </Selector>
+                  )}
+                </Campo>
+                <Campo etiqueta="Número de documento" opcional={!tipoIdentificacion}>
+                  {(props) => (
+                    <Entrada
+                      {...props}
+                      value={numeroIdentificacion}
+                      maxLength={40}
+                      disabled={!tipoIdentificacion}
+                      autoComplete="off"
+                      spellCheck={false}
+                      placeholder={tipoIdentificacion === "cedula" ? "1-1234-0567" : undefined}
+                      onChange={(e) => setNumeroIdentificacion(e.target.value)}
+                      className="font-mono text-sm"
+                    />
+                  )}
+                </Campo>
+              </div>
+              <p className="-mt-2 text-[12.5px] text-tinta-suave">
+                El nombre y la identificación solo viajan dentro de la credencial. La plataforma no los guarda
+                aparte y el titular decide si los muestra.
+              </p>
+              <Campo
                 etiqueta="Calificación"
                 opcional
                 ayuda="Por ejemplo, 95/100 o Aprobado. El titular decide si la muestra al presentar la credencial."
@@ -422,7 +494,19 @@ export function VistaEmitir() {
                     <ListaDatos
                       datos={[
                         {
-                          termino: "Titular",
+                          termino: "Nombre del titular",
+                          valor: nombreTitular.trim() || <span className="text-tinta-tenue">Sin escribir</span>,
+                        },
+                        ...(tipoIdentificacion && numeroIdentificacion.trim()
+                          ? [
+                              {
+                                termino: ETIQUETAS_TIPO_IDENTIFICACION[tipoIdentificacion],
+                                valor: <span className="font-mono text-sm">{numeroIdentificacion.trim()}</span>,
+                              },
+                            ]
+                          : []),
+                        {
+                          termino: "DID del titular",
                           valor: titularDid ? (
                             <Identificador valor={titularDid} etiqueta="Copiar DID" />
                           ) : (
@@ -444,8 +528,8 @@ export function VistaEmitir() {
                   }
                 />
                 <p className="text-sm text-tinta-tenue">
-                  Resultados, temas, contexto y calificación viajan como atributos que el titular puede
-                  mostrar u ocultar al presentar la credencial.
+                  Nombre, identificación, resultados, temas, contexto y calificación viajan como atributos
+                  que el titular puede mostrar u ocultar al presentar la credencial.
                 </p>
               </section>
             ) : (

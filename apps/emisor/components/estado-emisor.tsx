@@ -53,7 +53,7 @@ export function EmisorPendiente({ emisor }: { emisor: Emisor }) {
     <div className="mx-auto flex max-w-2xl flex-col gap-6 py-2 sm:py-6">
       <div className="flex flex-col items-start gap-3">
         <Insignia tono="ambar">Pendiente de autorización</Insignia>
-        <h1 className="text-[1.75rem] font-bold leading-tight text-tinta">Tu solicitud está en revisión</h1>
+        <h1 className="text-[28px] font-bold leading-tight text-marino">Tu solicitud está en revisión</h1>
         <p className="text-tinta-suave">
           Para proteger a estudiantes y empleadores, solo las instituciones autorizadas por la entidad
           que autoriza pueden emitir credenciales. Cuando aprueben la solicitud, este portal se
@@ -74,7 +74,7 @@ export function EmisorSuspendido({ emisor }: { emisor: Emisor }) {
     <div className="mx-auto flex max-w-2xl flex-col gap-6 py-2 sm:py-6">
       <div className="flex flex-col items-start gap-3">
         <Insignia tono="lacre">Suspendida</Insignia>
-        <h1 className="text-[1.75rem] font-bold leading-tight text-tinta">La institución está suspendida</h1>
+        <h1 className="text-[28px] font-bold leading-tight text-marino">La institución está suspendida</h1>
         <p className="text-tinta-suave">
           Mientras dure la suspensión no puedes emitir ni revocar credenciales. Las credenciales que ya
           emitiste siguen en las wallets de sus titulares, pero la verificación indicará que la

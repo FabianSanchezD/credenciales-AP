@@ -240,6 +240,7 @@ async function main(): Promise<void> {
       cuerpo: {
         plantillaId: plantilla.id,
         titularDid,
+        titularNombre: 'Titular de prueba',
         calificacion: 'Aprobado',
       },
     });

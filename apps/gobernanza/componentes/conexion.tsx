@@ -55,7 +55,7 @@ export function ConexionGobernanza() {
   return (
     <div className="mx-auto flex max-w-md flex-col gap-6 py-6 sm:py-12">
       <div>
-        <h1 className="text-[1.75rem] font-bold leading-tight text-tinta">Consola de gobernanza</h1>
+        <h1 className="text-[28px] font-bold leading-tight text-marino">Consola de gobernanza</h1>
         <p className="mt-2 text-tinta-suave">
           Aquí la entidad que autoriza, como CONESUP o un consejo de varias partes, decide qué
           instituciones pueden emitir credenciales. Solo pueden entrar las cuentas registradas como

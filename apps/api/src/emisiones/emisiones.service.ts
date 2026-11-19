@@ -106,6 +106,8 @@ export class EmisionesService {
 
     const vcId = randomUUID();
     const atributos: AtributosSeleccionables = {
+      nombreTitular: dto.titularNombre,
+      ...(dto.identificacion !== undefined && { identificacion: dto.identificacion }),
       resultadosAprendizaje: plantilla.resultadosAprendizaje,
       temasEvaluados: plantilla.temasEvaluados,
       contexto: plantilla.contexto,

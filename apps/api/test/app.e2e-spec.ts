@@ -181,7 +181,7 @@ describe('API (e2e)', () => {
     await api()
       .post('/api/emisiones')
       .set(comoEmisor)
-      .send({ plantillaId: plantilla.id, titularDid })
+      .send({ plantillaId: plantilla.id, titularDid, titularNombre: 'Ana Rojas Mora' })
       .expect(403);
 
     // 3. La entidad que autoriza habilita al emisor.
@@ -224,7 +224,13 @@ describe('API (e2e)', () => {
     const { body: preparada } = (await api()
       .post('/api/emisiones')
       .set(comoEmisor)
-      .send({ plantillaId: plantilla.id, titularDid, calificacion: '92/100' })
+      .send({
+        plantillaId: plantilla.id,
+        titularDid,
+        titularNombre: 'Ana Rojas Mora',
+        identificacion: { tipo: 'carne', numero: '2026012345' },
+        calificacion: '92/100',
+      })
       .expect(201)) as { body: EmisionPreparada };
     expect(preparada.emision.estado).toBe('borrador');
 
@@ -278,14 +284,16 @@ describe('API (e2e)', () => {
     const presentacion = crearPresentacion(
       boveda[0]!.credencial,
       boveda[0]!.divulgaciones,
-      ['resultadosAprendizaje', 'calificacion'],
+      ['nombreTitular', 'resultadosAprendizaje', 'calificacion'],
     );
     const { body: resultado } = (await api()
       .post('/api/verificaciones')
       .send({ presentacion })
       .expect(200)) as { body: ResultadoVerificacion };
     expect(resultado.resultado).toBe('valida');
+    // La identificación no se eligió: el verificador no la recibe.
     expect(resultado.atributos).toEqual({
+      nombreTitular: 'Ana Rojas Mora',
       resultadosAprendizaje: CONTENIDO_PLANTILLA.resultadosAprendizaje,
       calificacion: '92/100',
     });
@@ -354,7 +362,7 @@ describe('API (e2e)', () => {
     await api()
       .post('/api/emisiones')
       .set(comoEmisor)
-      .send({ plantillaId: plantilla.id, titularDid })
+      .send({ plantillaId: plantilla.id, titularDid, titularNombre: 'Ana Rojas Mora' })
       .expect(403);
     await api()
       .delete(`/api/boveda/bloqueos/${emisor.id}`)

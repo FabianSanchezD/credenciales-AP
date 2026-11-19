@@ -47,7 +47,7 @@ export function RegistroEmisor() {
   return (
     <div className="mx-auto flex max-w-xl flex-col gap-6 py-2 sm:py-6">
       <div>
-        <h1 className="text-[1.75rem] font-bold leading-tight text-tinta">Registra tu institución</h1>
+        <h1 className="text-[28px] font-bold leading-tight text-marino">Registra tu institución</h1>
         <p className="mt-2 text-tinta-suave">
           Esta cuenta todavía no está asociada a ninguna institución. Completa los datos y la entidad
           que autoriza revisará la solicitud antes de que puedas emitir credenciales.

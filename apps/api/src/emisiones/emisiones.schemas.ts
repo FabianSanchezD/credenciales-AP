@@ -1,3 +1,4 @@
+import { identificacionSchema } from '@repo/credenciales';
 import { z } from 'zod';
 import { firmaMensajeSchema } from '../auth/auth.schemas.js';
 
@@ -8,6 +9,12 @@ export const emisionIdSchema = z.uuid({
 export const prepararEmisionSchema = z.strictObject({
   plantillaId: z.uuid({ error: 'El id de la plantilla no es válido' }),
   titularDid: z.string().trim().min(1).max(200),
+  titularNombre: z
+    .string()
+    .trim()
+    .min(2, { error: 'Escribe el nombre completo del titular' })
+    .max(200, { error: 'El nombre no puede superar 200 caracteres' }),
+  identificacion: identificacionSchema.optional(),
   calificacion: z.string().trim().min(1).max(100).optional(),
 });
 export type PrepararEmisionDto = z.infer<typeof prepararEmisionSchema>;

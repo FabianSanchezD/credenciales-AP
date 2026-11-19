@@ -152,7 +152,7 @@ export function InicioSesion() {
     <div className="flex flex-col gap-8 py-2 sm:py-6">
       <div className="flex flex-col-reverse gap-5 sm:flex-row sm:items-start sm:justify-between">
         <div className="max-w-xl">
-          <h1 className="font-serif text-[2rem] font-medium leading-tight text-tinta sm:text-[2.5rem]">
+          <h1 className="text-[28px] font-bold leading-tight text-marino sm:text-[32px]">
             Tus credenciales académicas, siempre contigo
           </h1>
           <p className="mt-3 text-lg text-tinta-suave">

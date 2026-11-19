@@ -27,6 +27,8 @@ describe('EmisionesService', () => {
     const preparada = await ctx.emisiones.preparar(cuenta, {
       plantillaId: plantilla.id,
       titularDid,
+      titularNombre: 'Ana Rojas Mora',
+      identificacion: { tipo: 'cedula', numero: '1-1234-0567' },
       calificacion: '95/100',
     });
     expect(preparada.emision).toMatchObject({
@@ -38,6 +40,9 @@ describe('EmisionesService', () => {
     expect(preparada.mensajeAFirmar).toContain(titularDid);
     // La calificación va oculta en una divulgación, no en claro.
     expect(preparada.mensajeAFirmar).not.toContain('95/100');
+    // Nombre e identificación tampoco van en claro: solo su hash en `_sd`.
+    expect(preparada.mensajeAFirmar).not.toContain('Ana Rojas Mora');
+    expect(preparada.mensajeAFirmar).not.toContain('1-1234-0567');
 
     const firmada = await ctx.emisiones.firmar(
       cuenta,
@@ -60,8 +65,12 @@ describe('EmisionesService', () => {
     expect(boveda).toHaveLength(1);
     expect(boveda[0]).toMatchObject({ vcId: emitida.id, estado: 'valida' });
     expect(verificarPrueba(boveda[0]!.credencial)).toBe(true);
-    expect(boveda[0]!.divulgaciones.map(([, nombre]) => nombre)).toContain(
-      'calificacion',
+    expect(boveda[0]!.divulgaciones.map(([, nombre]) => nombre)).toEqual(
+      expect.arrayContaining([
+        'nombreTitular',
+        'identificacion',
+        'calificacion',
+      ]),
     );
   });
 
@@ -90,6 +99,7 @@ describe('EmisionesService', () => {
       ctx.emisiones.preparar(llave.publicKey(), {
         plantillaId: plantilla.id,
         titularDid,
+        titularNombre: 'Ana Rojas Mora',
       }),
     ).rejects.toBeInstanceOf(ForbiddenException);
   });
@@ -102,18 +112,27 @@ describe('EmisionesService', () => {
       ctx.emisiones.preparar(cuenta, {
         plantillaId: plantilla.id,
         titularDid: `did:stellar:mainnet:${titular.publicKey()}`,
+        titularNombre: 'Ana Rojas Mora',
       }),
     ).rejects.toBeInstanceOf(BadRequestException);
 
     await ctx.boveda.bloquear(titular.publicKey(), emisor.id);
     await expect(
-      ctx.emisiones.preparar(cuenta, { plantillaId: plantilla.id, titularDid }),
+      ctx.emisiones.preparar(cuenta, {
+        plantillaId: plantilla.id,
+        titularDid,
+        titularNombre: 'Ana Rojas Mora',
+      }),
     ).rejects.toBeInstanceOf(ForbiddenException);
     await ctx.boveda.desbloquear(titular.publicKey(), emisor.id);
 
     await ctx.plantillas.archivar(cuenta, plantilla.id);
     await expect(
-      ctx.emisiones.preparar(cuenta, { plantillaId: plantilla.id, titularDid }),
+      ctx.emisiones.preparar(cuenta, {
+        plantillaId: plantilla.id,
+        titularDid,
+        titularNombre: 'Ana Rojas Mora',
+      }),
     ).rejects.toBeInstanceOf(ConflictException);
   });
 
@@ -123,6 +142,7 @@ describe('EmisionesService', () => {
     const { emision, mensajeAFirmar } = await ctx.emisiones.preparar(cuenta, {
       plantillaId: plantilla.id,
       titularDid,
+      titularNombre: 'Ana Rojas Mora',
     });
 
     await expect(
@@ -147,6 +167,7 @@ describe('EmisionesService', () => {
     const { emision, mensajeAFirmar } = await ctx.emisiones.preparar(cuenta, {
       plantillaId: plantilla.id,
       titularDid,
+      titularNombre: 'Ana Rojas Mora',
     });
 
     await expect(
@@ -174,6 +195,7 @@ describe('EmisionesService', () => {
     const otra = await ctx.emisiones.preparar(cuenta, {
       plantillaId: plantilla.id,
       titularDid,
+      titularNombre: 'Ana Rojas Mora',
     });
     const otraFirmada = await ctx.emisiones.firmar(
       cuenta,
@@ -195,6 +217,7 @@ describe('EmisionesService', () => {
     const { emision, mensajeAFirmar } = await ctx.emisiones.preparar(cuenta, {
       plantillaId: plantilla.id,
       titularDid,
+      titularNombre: 'Ana Rojas Mora',
     });
 
     await expect(
@@ -250,6 +273,7 @@ describe('EmisionesService', () => {
     const { emision } = await ctx.emisiones.preparar(llave.publicKey(), {
       plantillaId: plantilla.id,
       titularDid,
+      titularNombre: 'Ana Rojas Mora',
     });
     const otro = await emisorAutorizado(ctx);
 

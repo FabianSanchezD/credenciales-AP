@@ -9,7 +9,7 @@ const TONOS: Record<TonoEstado, string> = {
   lacre: "bg-lacre-claro text-lacre-hondo",
   ambar: "bg-ambar-claro text-ambar",
   marino: "bg-marino-claro text-marino",
-  neutro: "bg-hundido text-tinta-suave",
+  neutro: "bg-papel text-tinta-suave",
 };
 
 /** Etiqueta corta de estado (válida, pendiente, revocada...). */
@@ -25,12 +25,12 @@ export function Insignia({
   return (
     <span
       className={cn(
-        "inline-flex h-6 items-center gap-1.5 whitespace-nowrap rounded-full px-2.5 text-xs font-semibold",
+        "inline-flex items-center gap-[5px] self-center whitespace-nowrap rounded-full px-[9px] py-0.5 text-xs font-medium",
         TONOS[tono],
         className,
       )}
     >
-      <span aria-hidden className="size-1.5 rounded-full bg-current" />
+      <span aria-hidden className="size-[7px] rounded-full bg-current" />
       {children}
     </span>
   );
@@ -39,7 +39,7 @@ export function Insignia({
 export function Panel({ className, ...props }: HTMLAttributes<HTMLDivElement>) {
   return (
     <div
-      className={cn("rounded-panel border border-linea bg-superficie p-5 sm:p-6", className)}
+      className={cn("rounded-panel border border-linea bg-superficie p-5", className)}
       {...props}
     />
   );
@@ -57,8 +57,8 @@ export function EncabezadoPagina({
   return (
     <div className="mb-6 flex flex-col gap-4 sm:mb-8 sm:flex-row sm:items-end sm:justify-between">
       <div className="max-w-2xl">
-        <h1 className="text-2xl font-bold text-tinta sm:text-[1.75rem]">{titulo}</h1>
-        {descripcion && <p className="mt-1.5 text-tinta-suave">{descripcion}</p>}
+        <h1 className="text-2xl font-bold text-marino sm:text-[28px]">{titulo}</h1>
+        {descripcion && <p className="mt-1.5 max-w-[62ch] text-tinta-suave">{descripcion}</p>}
       </div>
       {acciones && <div className="flex shrink-0 flex-wrap gap-2">{acciones}</div>}
     </div>
@@ -73,10 +73,10 @@ const ICONOS_AVISO = {
 };
 
 const TONOS_AVISO = {
-  info: "border-marino/30 bg-marino-claro text-tinta",
-  exito: "border-sello/30 bg-sello-claro text-tinta",
-  advertencia: "border-ambar/30 bg-ambar-claro text-tinta",
-  error: "border-lacre/30 bg-lacre-claro text-tinta",
+  info: "border-marino-claro bg-hundido text-tinta",
+  exito: "border-transparent bg-sello-claro text-tinta",
+  advertencia: "border-transparent bg-ambar-claro text-tinta",
+  error: "border-transparent bg-lacre-claro text-tinta",
 };
 
 const COLOR_ICONO = {
@@ -103,11 +103,11 @@ export function Aviso({
   return (
     <div
       role={tipo === "error" ? "alert" : "status"}
-      className={cn("flex gap-3 rounded-panel border p-4", TONOS_AVISO[tipo], className)}
+      className={cn("flex items-start gap-2.5 rounded-lg border px-3.5 py-3", TONOS_AVISO[tipo], className)}
     >
-      <Icono aria-hidden className={cn("mt-0.5 size-5 shrink-0", COLOR_ICONO[tipo])} />
+      <Icono aria-hidden className={cn("mt-0.5 size-[18px] shrink-0", COLOR_ICONO[tipo])} />
       <div className="flex min-w-0 flex-1 flex-col gap-1 text-sm">
-        {titulo && <p className="font-semibold">{titulo}</p>}
+        {titulo && <p className="font-medium">{titulo}</p>}
         {children && <div className="text-tinta-suave">{children}</div>}
         {accion && <div className="mt-2">{accion}</div>}
       </div>
@@ -128,9 +128,13 @@ export function Vacio({
   accion?: ReactNode;
 }) {
   return (
-    <div className="flex flex-col items-start gap-3 rounded-panel border border-dashed border-linea-fuerte bg-superficie/60 px-6 py-10 sm:items-center sm:text-center">
-      {icono && <div className="text-tinta-tenue [&>svg]:size-8">{icono}</div>}
-      <h2 className="text-lg font-semibold text-tinta">{titulo}</h2>
+    <div className="flex flex-col items-center gap-3 rounded-panel border border-linea bg-superficie px-6 py-12 text-center">
+      {icono && (
+        <div className="grid size-14 place-items-center rounded-[14px] border border-linea bg-papel text-marino [&>svg]:size-6">
+          {icono}
+        </div>
+      )}
+      <h2 className="text-lg font-medium text-tinta">{titulo}</h2>
       {children && <div className="max-w-md text-tinta-suave">{children}</div>}
       {accion && <div className="mt-2">{accion}</div>}
     </div>
@@ -166,10 +170,10 @@ export function Pasos({
               <span
                 aria-hidden
                 className={cn(
-                  "grid size-7 shrink-0 place-items-center rounded-full border-2 text-xs font-bold cifras",
-                  hecho && "border-sello bg-sello text-superficie",
-                  enCurso && "border-tinta bg-superficie text-tinta",
-                  !hecho && !enCurso && "border-linea-fuerte bg-superficie text-tinta-tenue",
+                  "grid size-7 shrink-0 place-items-center rounded-full border text-[12.5px] font-bold cifras",
+                  hecho && "border-sello bg-sello-claro text-sello",
+                  enCurso && "border-marino bg-marino text-white",
+                  !hecho && !enCurso && "border-linea bg-superficie text-tinta-suave",
                 )}
               >
                 {hecho ? "✓" : i + 1}
@@ -184,7 +188,7 @@ export function Pasos({
             <span
               className={cn(
                 "text-sm",
-                enCurso ? "font-semibold text-tinta" : hecho ? "text-tinta-suave" : "text-tinta-tenue",
+                enCurso ? "font-medium text-marino" : hecho ? "text-tinta-suave" : "text-tinta-tenue",
               )}
             >
               {paso}
@@ -209,7 +213,7 @@ export function ListaDatos({
     <dl className={cn("grid gap-x-6 gap-y-3 sm:grid-cols-[minmax(8rem,auto)_1fr]", className)}>
       {datos.map(({ termino, valor }, i) => (
         <div key={i} className="contents">
-          <dt className="text-sm text-tinta-tenue">{termino}</dt>
+          <dt className="text-sm text-tinta-suave">{termino}</dt>
           <dd className="min-w-0 text-tinta">{valor}</dd>
         </div>
       ))}

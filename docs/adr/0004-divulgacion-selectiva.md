@@ -9,8 +9,13 @@ La microcredencial sigue W3C VC 2.0 (Tabla 6). Para que el titular elija qué re
 el mismo mecanismo que SD-JWT, adaptado a JSON:
 
 - Siempre visibles: emisor, nombre y descripción del logro, tipo de credencial y fechas.
-- Seleccionables: resultados de aprendizaje, temas evaluados, contexto (horas, nivel, modalidad,
-  tipo de aprendizaje) y calificación.
+- Seleccionables: nombre del titular, identificación (cédula, carné institucional, DIMEX o
+  pasaporte), resultados de aprendizaje, temas evaluados, contexto (horas, nivel, modalidad, tipo de
+  aprendizaje) y calificación.
+- El nombre del titular es obligatorio al emitir y la identificación es opcional. Ambos viajan solo
+  como divulgaciones dentro de la credencial: la base de datos no los guarda en columnas propias
+  (RNF-01) y a Stellar solo llega el hash. Al compartir, la wallet marca el nombre y deja la
+  identificación sin marcar.
 - Cada atributo seleccionable se convierte en una divulgación `[sal, nombre, valor]`. La credencial
   firmada solo contiene `credentialSubject._sd`, con el SHA-256 (base64url) del JSON canónico de
   cada divulgación.
