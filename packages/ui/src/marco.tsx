@@ -132,7 +132,13 @@ export function Marco({
                 aria-current={enlace.activo ? "page" : undefined}
                 className={cn(
                   "shrink-0 rounded-control px-3 py-1.5 text-sm font-medium",
-                  enlace.activo ? "bg-superficie text-tinta" : "text-tinta-suave",
+                  estiloNav === "subrayado"
+                    ? enlace.activo
+                      ? "rounded-none text-marino shadow-[inset_0_-2px_0_var(--color-marino)]"
+                      : "text-tinta-suave"
+                    : enlace.activo
+                      ? "bg-superficie text-tinta"
+                      : "text-tinta-suave",
                 )}
               >
                 {enlace.etiqueta}

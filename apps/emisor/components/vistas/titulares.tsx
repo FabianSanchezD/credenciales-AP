@@ -132,7 +132,7 @@ export function VistaTitulares() {
 
       {filas.length > 0 && (
         <>
-          <div className="overflow-x-auto rounded-[10px] border border-linea bg-superficie">
+          <div className="relative overflow-x-auto rounded-[10px] border border-linea bg-superficie">
             <table className="cifras w-full min-w-[860px] border-collapse text-[13px]">
               <thead>
                 <tr className="text-left text-[11.5px] font-medium text-tinta-tenue">
@@ -287,7 +287,12 @@ function DialogoInscribir({ alCerrar, alInscribir }: { alCerrar: () => void; alI
     }
     const malos = dids.map((d) => [d, validarDid(d)] as const).filter(([, p]) => p);
     if (malos.length) {
-      setError(`${malos.length === 1 ? "Este DID no es válido" : `${malos.length} DIDs no son válidos`}: ${abreviar(malos[0]![0], 24, 6)}. ${malos[0]![1]}`);
+      const [did, problema] = malos[0]!;
+      setError(
+        malos.length === 1
+          ? `${abreviar(did, 24, 6)}: ${problema}`
+          : `${malos.length} DIDs no son válidos, por ejemplo ${abreviar(did, 24, 6)}. ${problema}`,
+      );
       return;
     }
     setEnviando(true);

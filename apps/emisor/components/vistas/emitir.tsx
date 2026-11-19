@@ -112,10 +112,21 @@ function EmitirEnLote() {
 
   function agregar(lista: FilaDestino[], origen: string) {
     const actuales = filas.filter((f) => f.did.trim());
-    const sinRepetir = lista.filter((f) => f.did && !actuales.some((a) => a.did.trim() === f.did.trim()));
+    const vistos = new Set(actuales.map((a) => a.did.trim()));
+    const sinRepetir = lista.filter((f) => {
+      const did = f.did.trim();
+      if (!did || vistos.has(did)) return false;
+      vistos.add(did);
+      return true;
+    });
     setFilas([...actuales, ...sinRepetir, ...(actuales.length + sinRepetir.length === 0 ? [fila()] : [])]);
     if (sinRepetir.some((f) => f.calificacion)) setConCalificacion(true);
-    setAviso(`${origen}: ${sinRepetir.length} ${sinRepetir.length === 1 ? "titular agregado" : "titulares agregados"}${lista.length - sinRepetir.length ? `, ${lista.length - sinRepetir.length} ya estaban` : ""}.`);
+    const omitidos = lista.length - sinRepetir.length;
+    setAviso(
+      `${origen}: ${sinRepetir.length} ${sinRepetir.length === 1 ? "titular agregado" : "titulares agregados"}${
+        omitidos ? `, ${omitidos} ${omitidos === 1 ? "repetido omitido" : "repetidos omitidos"}` : ""
+      }.`,
+    );
   }
 
   function cargarArchivo(e: ChangeEvent<HTMLInputElement>) {
@@ -313,7 +324,7 @@ function EmitirEnLote() {
                 <input type="checkbox" checked={conCalificacion} onChange={(e) => setConCalificacion(e.target.checked)} className="size-4 accent-[var(--color-tec-azul)]" />
                 Incluir calificación (el titular decide si la muestra)
               </label>
-              <div className="overflow-x-auto rounded-[9px] border border-linea px-2">
+              <div className="relative overflow-x-auto rounded-[9px] border border-linea px-2">
                 <table className="w-full min-w-[560px] border-collapse text-sm">
                   <thead>
                     <tr className="text-left text-[11.5px] uppercase tracking-[0.06em] text-tinta-tenue">
@@ -474,7 +485,7 @@ function EmitirEnLote() {
                   <div className="flex flex-wrap gap-2">
                     {fallidas > 0 && (
                       <Boton variante="secundario" onClick={() => void emitir(true)}>
-                        Reintentar las {fallidas} fallidas
+                        {fallidas === 1 ? "Reintentar la fallida" : `Reintentar las ${fallidas} fallidas`}
                       </Boton>
                     )}
                     <Boton onClick={() => reiniciar(true)}>Emitir otra con esta plantilla</Boton>

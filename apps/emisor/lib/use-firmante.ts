@@ -40,7 +40,7 @@ export function useFirmante() {
   const address = sesion?.address ?? null;
 
   const obtenerFirmante = useCallback(async (): Promise<Firmante> => {
-    if (!address) throw new Error("Tu sesión terminó. Vuelve a iniciar sesión para firmar.");
+    if (!address) throw new Error("Su sesión terminó. Vuelva a iniciar sesión para firmar.");
     if (firmante && firmante.address === address) return firmante;
     if (reciente.current?.address === address) return reciente.current;
 

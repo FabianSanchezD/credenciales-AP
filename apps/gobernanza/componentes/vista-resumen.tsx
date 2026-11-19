@@ -117,7 +117,9 @@ function Cifras({ resumen }: { resumen: ResumenGobernanza }) {
       datos: [
         { termino: "Autorizadas", valor: resumen.emisores.autorizado },
         { termino: "Pendientes", valor: resumen.emisores.pendiente },
+        { termino: "Con correcciones", valor: resumen.emisores.correcciones },
         { termino: "Suspendidas", valor: resumen.emisores.suspendido },
+        { termino: "Rechazadas", valor: resumen.emisores.rechazado },
       ],
     },
     {

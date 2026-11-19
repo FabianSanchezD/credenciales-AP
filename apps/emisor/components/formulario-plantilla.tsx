@@ -108,25 +108,25 @@ function validar(b: Borrador): { contenido: ContenidoPlantilla | null; errores: 
   const horas = Number(b.horas.replace(",", "."));
   const vigencia = Number(b.vigencia);
 
-  if (!nombre) errores.nombre = "Escribe el nombre del curso o logro.";
+  if (!nombre) errores.nombre = "Escriba el nombre del curso o logro.";
   else if (nombre.length > 200) errores.nombre = "El nombre puede tener hasta 200 caracteres.";
-  if (!descripcion) errores.descripcion = "Describe en pocas líneas qué acredita esta credencial.";
+  if (!descripcion) errores.descripcion = "Describa en pocas líneas qué acredita esta credencial.";
   else if (descripcion.length > 2000) errores.descripcion = "La descripción puede tener hasta 2000 caracteres.";
   if (resultados.length === 0) {
-    errores.resultados = "Agrega al menos un resultado de aprendizaje.";
+    errores.resultados = "Agregue al menos un resultado de aprendizaje.";
   } else if (resultados.length > 30) {
-    errores.resultados = "Puedes registrar hasta 30 resultados de aprendizaje.";
+    errores.resultados = "Puede registrar hasta 30 resultados de aprendizaje.";
   }
-  if (temas.length > 50) errores.temas = "Puedes registrar hasta 50 temas evaluados.";
-  if (!b.horas.trim()) errores.horas = "Indica la duración en horas.";
+  if (temas.length > 50) errores.temas = "Puede registrar hasta 50 temas evaluados.";
+  if (!b.horas.trim()) errores.horas = "Indique la duración en horas.";
   else if (!Number.isFinite(horas) || horas <= 0 || horas > 10000) {
-    errores.horas = "Escribe un número de horas mayor que 0 y hasta 10 000.";
+    errores.horas = "Escriba un número de horas mayor que 0 y hasta 10 000.";
   }
-  if (!b.nivel) errores.nivel = "Elige el nivel.";
-  if (!b.modalidad) errores.modalidad = "Elige la modalidad.";
-  if (!b.tipo) errores.tipo = "Indica si el aprendizaje es formal o no formal.";
+  if (!b.nivel) errores.nivel = "Elija el nivel.";
+  if (!b.modalidad) errores.modalidad = "Elija la modalidad.";
+  if (!b.tipo) errores.tipo = "Indique si el aprendizaje es formal o no formal.";
   if (b.vence && (!Number.isInteger(vigencia) || vigencia <= 0 || vigencia > 600)) {
-    errores.vigencia = "Escribe un número entero de meses, entre 1 y 600.";
+    errores.vigencia = "Escriba un número entero de meses, entre 1 y 600.";
   }
   if (Object.keys(errores).length > 0) return { contenido: null, errores };
 
@@ -143,9 +143,9 @@ function validar(b: Borrador): { contenido: ContenidoPlantilla | null; errores: 
       const [raiz, sub] = issue.path;
       if (raiz === "resultadosAprendizaje") errores.resultados = "Cada resultado puede tener hasta 200 caracteres.";
       else if (raiz === "temasEvaluados") errores.temas = "Cada tema puede tener hasta 200 caracteres.";
-      else if (raiz === "contexto" && sub === "horas") errores.horas = "Revisa la cantidad de horas.";
-      else if (raiz === "vigenciaMeses") errores.vigencia = "Revisa los meses de vigencia.";
-      else errores.nombre ??= "Revisa los datos de la plantilla.";
+      else if (raiz === "contexto" && sub === "horas") errores.horas = "Revise la cantidad de horas.";
+      else if (raiz === "vigenciaMeses") errores.vigencia = "Revise los meses de vigencia.";
+      else errores.nombre ??= "Revise los datos de la plantilla.";
     }
     return { contenido: null, errores };
   }
@@ -209,7 +209,7 @@ export function FormularioPlantilla({
     const { contenido, errores: nuevos } = validar(b);
     setErrores(nuevos);
     if (!contenido) {
-      setError("Revisa los campos marcados antes de guardar.");
+      setError("Revise los campos marcados antes de guardar.");
       return;
     }
     setGuardando(true);
@@ -217,7 +217,7 @@ export function FormularioPlantilla({
     try {
       await alGuardar(contenido, { carpeta, etiquetas });
     } catch (e) {
-      setError(mensajeError(e, "No se pudo guardar la plantilla. Intenta de nuevo."));
+      setError(mensajeError(e, "No se pudo guardar la plantilla. Intente de nuevo."));
     } finally {
       setGuardando(false);
     }
@@ -331,7 +331,7 @@ export function FormularioPlantilla({
               Los resultados de aprendizaje son obligatorios. Una credencial con solo un nombre y una
               nota no le dice a un empleador qué sabe hacer la persona.
             </p>
-            <p className="mt-2">Escribe cada resultado como algo que la persona puede hacer.</p>
+            <p className="mt-2">Escriba cada resultado como algo que la persona puede hacer.</p>
           </>
         }
       >
@@ -378,7 +378,7 @@ export function FormularioPlantilla({
             {(props) => (
               <Selector {...props} value={b.nivel} onChange={(e) => cambiar("nivel", e.target.value as Nivel)}>
                 <option value="" disabled>
-                  Elige un nivel
+                  Elija un nivel
                 </option>
                 {NIVELES.map((valor) => (
                   <option key={valor} value={valor}>
@@ -396,7 +396,7 @@ export function FormularioPlantilla({
                 onChange={(e) => cambiar("modalidad", e.target.value as Modalidad)}
               >
                 <option value="" disabled>
-                  Elige una modalidad
+                  Elija una modalidad
                 </option>
                 {MODALIDADES.map((valor) => (
                   <option key={valor} value={valor}>
@@ -460,7 +460,7 @@ export function FormularioPlantilla({
       </Seccion>
 
       <p className="text-sm text-tinta-tenue">
-        Este contenido es de tu institución. La plataforma solo revisa que esté completo y nunca lo
+        Este contenido es de su institución. La plataforma solo revisa que esté completo y nunca lo
         modifica.
       </p>
       {error && (

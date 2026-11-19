@@ -3,6 +3,7 @@
 import type { Plantilla } from "@repo/cliente";
 import { useSesion } from "@repo/cliente/react";
 import {
+  type ContenidoPlantilla,
   ETIQUETAS_MODALIDAD,
   ETIQUETAS_NIVEL,
   ETIQUETAS_TIPO_APRENDIZAJE,
@@ -27,6 +28,23 @@ import { useConsulta } from "../../lib/use-consulta";
 import { useEmisor } from "../acceso";
 import { EnlaceBoton, EnlaceTexto, ErrorCarga } from "../comun";
 import { FormularioPlantilla } from "../formulario-plantilla";
+
+/** Mismo orden de campos que arma el formulario, para comparar contenidos. */
+function contenidoDe(p: Plantilla): ContenidoPlantilla {
+  return {
+    nombre: p.nombre,
+    descripcion: p.descripcion,
+    resultadosAprendizaje: p.resultadosAprendizaje,
+    temasEvaluados: p.temasEvaluados,
+    contexto: {
+      horas: p.contexto.horas,
+      nivel: p.contexto.nivel,
+      modalidad: p.contexto.modalidad,
+      tipoAprendizaje: p.contexto.tipoAprendizaje,
+    },
+    vigenciaMeses: p.vigenciaMeses,
+  };
+}
 
 function vigencia(meses: number | null): string {
   if (meses === null) return "No vence";
@@ -154,11 +172,16 @@ export function VistaPlantillaDetalle() {
                 carpetas={carpetas.datos ?? []}
                 alCancelar={() => setEditando(false)}
                 alGuardar={async (contenido, organizacion) => {
-                  const actualizada = await api.actualizarPlantilla(plantilla.id, contenido);
-                  const nueva = await api.organizarPlantilla(actualizada.id, organizacion);
+                  const contenidoCambio = JSON.stringify(contenido) !== JSON.stringify(contenidoDe(plantilla));
+                  if (contenidoCambio) await api.actualizarPlantilla(plantilla.id, contenido);
+                  const nueva = await api.organizarPlantilla(plantilla.id, organizacion);
                   consulta.mutar(() => nueva);
                   setEditando(false);
-                  setAviso(`Se guardó la versión ${nueva.version} de la plantilla.`);
+                  setAviso(
+                    contenidoCambio
+                      ? `Se guardó la versión ${nueva.version} de la plantilla.`
+                      : "Se guardaron la carpeta y las etiquetas. La versión no cambia.",
+                  );
                 }}
               />
             </div>

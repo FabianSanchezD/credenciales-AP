@@ -30,7 +30,7 @@ export function Ingreso() {
     evento.preventDefault();
     const nuevos = {
       correo: validarCorreo(correo) ?? undefined,
-      contrasena: contrasena ? undefined : "Escribe la contraseña.",
+      contrasena: contrasena ? undefined : "Escriba la contraseña.",
     };
     setErrores(nuevos);
     if (nuevos.correo || nuevos.contrasena) return;

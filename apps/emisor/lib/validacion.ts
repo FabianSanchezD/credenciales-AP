@@ -11,20 +11,20 @@ export function validarSitioWeb(valor: string): string | null {
     if (url.protocol !== "https:" && url.protocol !== "http:") throw new Error();
     return null;
   } catch {
-    return "Escribe la dirección completa, empezando con https://";
+    return "Escriba la dirección completa, empezando con https://";
   }
 }
 
 /** Devuelve el error del DID, o `null` si es un did:stellar válido. */
 export function validarDid(valor: string): string | null {
   const texto = valor.trim();
-  if (!texto) return "Pega el DID del titular.";
+  if (!texto) return "Pegue el DID del titular.";
   const did = parseDidStellar(texto);
   if (!did) {
-    return "Ese DID no es válido. Debe verse así: did:stellar:testnet:G seguido de 55 caracteres.";
+    return "No es un DID válido. Debe verse así: did:stellar:testnet:G seguido de 55 caracteres.";
   }
   if (did.network !== env.stellarNetwork) {
-    return `Ese DID es de la red ${did.network} y este portal usa ${env.stellarNetwork}. Pide al titular el DID de su Digital Wallet en ${env.stellarNetwork}.`;
+    return `Ese DID es de la red ${did.network} y este portal usa ${env.stellarNetwork}. Pida al titular el DID de su Digital Wallet en ${env.stellarNetwork}.`;
   }
   return null;
 }
@@ -32,18 +32,18 @@ export function validarDid(valor: string): string | null {
 /** Error del correo, o `null`. `institucional` rechaza proveedores personales. */
 export function validarCorreo(valor: string, institucional = false): string | null {
   const texto = valor.trim().toLowerCase();
-  if (!texto) return "Escribe el correo.";
-  if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(texto)) return "Escribe un correo válido, como nombre@institucion.ac.cr";
+  if (!texto) return "Escriba el correo.";
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(texto)) return "Escriba un correo válido, como nombre@institucion.ac.cr";
   const dominio = texto.split("@")[1] ?? "";
   if (institucional && (DOMINIOS_CORREO_PERSONAL as readonly string[]).includes(dominio)) {
-    return "Usa el correo institucional, no uno personal.";
+    return "Use el correo institucional, no uno personal.";
   }
   return null;
 }
 
 export function validarIdentificacion(tipo: TipoIdentificacion, valor: string): string | null {
   const texto = valor.trim();
-  if (!texto) return "Escribe la identificación.";
+  if (!texto) return "Escriba la identificación.";
   const { patron, ejemplo } = FORMATOS_ID[tipo];
   return patron.test(texto) ? null : `El formato esperado es ${ejemplo}.`;
 }

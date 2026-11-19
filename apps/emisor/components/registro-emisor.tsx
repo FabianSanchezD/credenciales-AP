@@ -79,20 +79,20 @@ function datosDeEjemplo() {
 
 function validarInstitucion(d: DatosInstitucion, conCorreo: boolean): Errores {
   return {
-    nombre: d.nombre.trim().length < 5 ? "Escribe el nombre completo de la institución." : null,
+    nombre: d.nombre.trim().length < 5 ? "Escriba el nombre completo de la institución." : null,
     identificacion: validarIdentificacion(d.tipoIdentificacion, d.identificacion),
     correo: conCorreo ? validarCorreo(d.correo, true) : null,
-    sitioWeb: d.sitioWeb.trim() ? validarSitioWeb(d.sitioWeb) : "Escribe el sitio web de la institución.",
+    sitioWeb: d.sitioWeb.trim() ? validarSitioWeb(d.sitioWeb) : "Escriba el sitio web de la institución.",
   };
 }
 
 function validarRepresentante(d: DatosRepresentante): Errores {
   return {
-    nombre: d.nombre.trim().split(/\s+/).length < 2 ? "Escribe el nombre y al menos un apellido." : null,
+    nombre: d.nombre.trim().split(/\s+/).length < 2 ? "Escriba el nombre y al menos un apellido." : null,
     identificacion: validarIdentificacion(d.tipoIdentificacion, d.identificacion),
-    cargo: d.cargo.trim().length < 3 ? "Escribe el cargo en la institución." : null,
+    cargo: d.cargo.trim().length < 3 ? "Escriba el cargo en la institución." : null,
     correo: validarCorreo(d.correo),
-    telefono: /^[0-9+\-\s]{8,20}$/.test(d.telefono.trim()) ? null : "Escribe un teléfono de 8 dígitos o más.",
+    telefono: /^[0-9+\-\s]{8,20}$/.test(d.telefono.trim()) ? null : "Escriba un teléfono de 8 dígitos o más.",
   };
 }
 

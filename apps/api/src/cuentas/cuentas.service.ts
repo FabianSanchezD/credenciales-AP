@@ -75,7 +75,7 @@ export class CuentasService {
   async enviarCodigo({ correo }: EnviarCodigoDto): Promise<CodigoEnviado> {
     if (await this.repository.findByCorreo(correo)) {
       throw new ConflictException(
-        'Ya existe una cuenta con ese correo. Inicia sesión.',
+        'Ya existe una cuenta con ese correo. Inicie sesión.',
       );
     }
     const codigo = randomInt(0, 1_000_000).toString().padStart(6, '0');
@@ -109,7 +109,7 @@ export class CuentasService {
     const guardado = await this.almacen.get(claveCodigo(correo));
     if (!guardado) {
       throw new BadRequestException(
-        'El código venció. Pide uno nuevo para verificar el correo.',
+        'El código venció. Pida uno nuevo para verificar el correo.',
       );
     }
     const pendiente = JSON.parse(guardado) as CodigoPendiente;
@@ -118,7 +118,7 @@ export class CuentasService {
       if (intentos >= MAX_INTENTOS_CODIGO) {
         await this.almacen.delete(claveCodigo(correo));
         throw new BadRequestException(
-          'El código no coincide y se agotaron los intentos. Pide uno nuevo.',
+          'El código no coincide y se agotaron los intentos. Pida uno nuevo.',
         );
       }
       const restante = Math.max(
@@ -131,7 +131,7 @@ export class CuentasService {
         restante,
       );
       throw new BadRequestException(
-        'El código no coincide. Revisa el correo e intenta de nuevo.',
+        'El código no coincide. Revise el correo e intente de nuevo.',
       );
     }
     await this.almacen.delete(claveCodigo(correo));
@@ -155,12 +155,12 @@ export class CuentasService {
     );
     if (correoVerificado !== institucion.correo) {
       throw new BadRequestException(
-        'Verifica el correo institucional antes de crear la cuenta.',
+        'Verifique el correo institucional antes de crear la cuenta.',
       );
     }
     if (await this.repository.findByCorreo(institucion.correo)) {
       throw new ConflictException(
-        'Ya existe una cuenta con ese correo. Inicia sesión.',
+        'Ya existe una cuenta con ese correo. Inicie sesión.',
       );
     }
 

@@ -11,14 +11,14 @@ import {
 } from './cuenta.entity.js';
 
 const correoSchema = z
-  .email({ error: 'Escribe un correo válido' })
+  .email({ error: 'Escriba un correo válido' })
   .trim()
   .toLowerCase()
   .max(200);
 
 export const correoInstitucionalSchema = correoSchema.refine(
   (correo) => !DOMINIOS_CORREO_PERSONAL.includes(correo.split('@')[1] ?? ''),
-  { error: 'Usa el correo institucional, no uno personal' },
+  { error: 'Use el correo institucional, no uno personal' },
 );
 
 /** 10 caracteres o más, con una mayúscula, un número y un símbolo. */
@@ -70,7 +70,7 @@ export const institucionCorreccionSchema = institucionBase
 export const representanteSchema = z
   .strictObject({
     nombre: texto(3).refine((v) => v.split(/\s+/).length >= 2, {
-      error: 'Escribe el nombre y al menos un apellido',
+      error: 'Escriba el nombre y al menos un apellido',
     }),
     tipoIdentificacion: z.enum(TIPOS_ID_PERSONA),
     identificacion: texto(5, 30),
@@ -79,7 +79,7 @@ export const representanteSchema = z
     telefono: z
       .string()
       .trim()
-      .regex(/^[0-9+\-\s]{8,20}$/, { error: 'Escribe un teléfono válido' }),
+      .regex(/^[0-9+\-\s]{8,20}$/, { error: 'Escriba un teléfono válido' }),
   })
   .superRefine(identificacionValida);
 
@@ -132,14 +132,14 @@ export const actualizarDatosSchema = z.strictObject({
   provincia: z.enum(PROVINCIAS),
   representante: z.strictObject({
     nombre: texto(3).refine((v) => v.split(/\s+/).length >= 2, {
-      error: 'Escribe el nombre y al menos un apellido',
+      error: 'Escriba el nombre y al menos un apellido',
     }),
     cargo: texto(3),
     correo: correoSchema,
     telefono: z
       .string()
       .trim()
-      .regex(/^[0-9+\-\s]{8,20}$/, { error: 'Escribe un teléfono válido' }),
+      .regex(/^[0-9+\-\s]{8,20}$/, { error: 'Escriba un teléfono válido' }),
   }),
 });
 export type ActualizarDatosDto = z.infer<typeof actualizarDatosSchema>;
