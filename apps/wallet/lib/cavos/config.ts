@@ -12,6 +12,7 @@ export const cavosConfig: CavosConfig = {
   defaultChain: "stellar",
   network: env.stellarNetwork,
   appSalt: env.cavosAppSalt,
+  ...(env.cavosEnvironment ? { environment: env.cavosEnvironment } : {}),
   // Un dispositivo nuevo recupera la wallet con la passkey del titular.
   deviceApproval: "passkey",
 };

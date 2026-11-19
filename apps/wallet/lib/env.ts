@@ -12,10 +12,24 @@ if (!isStellarNetwork(network)) {
   );
 }
 
+/** Entorno de la consola de Cavos. Sin la variable, el SDK usa producción. */
+const cavosEnvironment = process.env.NEXT_PUBLIC_CAVOS_ENVIRONMENT || undefined;
+
+if (
+  cavosEnvironment !== undefined &&
+  cavosEnvironment !== "development" &&
+  cavosEnvironment !== "production"
+) {
+  throw new Error(
+    `NEXT_PUBLIC_CAVOS_ENVIRONMENT debe ser "development" o "production", no "${cavosEnvironment}"`,
+  );
+}
+
 export const env = {
   apiUrl: process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:4000/api",
   verificadorUrl: process.env.NEXT_PUBLIC_VERIFICADOR_URL ?? "http://localhost:3002",
   cavosAppId: process.env.NEXT_PUBLIC_CAVOS_APP_ID,
+  cavosEnvironment: cavosEnvironment as "development" | "production" | undefined,
   /** Nunca cambiarlo en producción: es la sal de la llave de cada titular. */
   cavosAppSalt:
     process.env.NEXT_PUBLIC_CAVOS_APP_SALT ?? "credenciales-ap-wallet",
