@@ -15,11 +15,37 @@
     },
     "test": {
       "dependsOn": ["^build"],
-      "env": ["STELLAR_NETWORK", "STELLAR_HORIZON_URL", "CORS_ORIGINS"]
+      "env": [
+        "NODE_ENV",
+        "STELLAR_NETWORK",
+        "STELLAR_HORIZON_URL",
+        "CORS_ORIGINS",
+        "DATABASE_PATH",
+        "REDIS_URL",
+        "GOBERNANZA_CUENTAS",
+        "GOBERNANZA_ABIERTA",
+        "ANCLAJE_DRIVER",
+        "ACTA_API_KEY",
+        "ACTA_API_URL",
+        "BOVEDA_CLAVE"
+      ]
     },
     "test:e2e": {
       "dependsOn": ["^build"],
-      "env": ["STELLAR_NETWORK", "STELLAR_HORIZON_URL", "CORS_ORIGINS"]
+      "env": [
+        "NODE_ENV",
+        "STELLAR_NETWORK",
+        "STELLAR_HORIZON_URL",
+        "CORS_ORIGINS",
+        "DATABASE_PATH",
+        "REDIS_URL",
+        "GOBERNANZA_CUENTAS",
+        "GOBERNANZA_ABIERTA",
+        "ANCLAJE_DRIVER",
+        "ACTA_API_KEY",
+        "ACTA_API_URL",
+        "BOVEDA_CLAVE"
+      ]
     },
     "dev": {
       "dependsOn": ["^build"],

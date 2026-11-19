@@ -39,3 +39,13 @@ yarn-error.log*
 
 # TypeScript
 *.tsbuildinfo
+
+# Archivos que next dev genera en cada app
+apps/emisor/AGENTS.md
+apps/emisor/CLAUDE.md
+apps/gobernanza/AGENTS.md
+apps/gobernanza/CLAUDE.md
+apps/verificador/AGENTS.md
+apps/verificador/CLAUDE.md
+apps/wallet/AGENTS.md
+apps/wallet/CLAUDE.md
