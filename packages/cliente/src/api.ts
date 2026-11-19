@@ -128,6 +128,18 @@ export class ClienteApi {
   corregirRegistro(datos: { institucion: Omit<DatosInstitucion, "correo">; representante: DatosRepresentante }) {
     return this.pedir<RegistroEmisor>("PUT", "/cuentas/registro", datos);
   }
+  /** Datos editables desde Configuración (sin nueva revisión). */
+  actualizarMisDatos(datos: {
+    sitioWeb: string;
+    provincia: DatosInstitucion["provincia"];
+    representante: Pick<DatosRepresentante, "nombre" | "cargo" | "correo" | "telefono">;
+  }) {
+    return this.pedir<RegistroEmisor>("PATCH", "/cuentas/registro", datos);
+  }
+  /** `llaveCifrada`: la llave de firma recifrada con la nueva contraseña. */
+  cambiarContrasena(actual: string, nueva: string, llaveCifrada: string | null) {
+    return this.pedir<void>("POST", "/cuentas/contrasena", { actual, nueva, llaveCifrada });
+  }
   /** Llave de firma cifrada de la institución en sesión. */
   miLlave() {
     return this.pedir<LlaveEmisor>("GET", "/cuentas/llave");

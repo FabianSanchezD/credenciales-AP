@@ -2,7 +2,10 @@ import {
   Body,
   Controller,
   Get,
+  HttpCode,
+  HttpStatus,
   Param,
+  Patch,
   Post,
   Put,
   UseGuards,
@@ -13,12 +16,16 @@ import { Roles, SesionActual } from '../auth/decoradores.js';
 import type { SesionActiva } from '../auth/sesion.js';
 import type { RegistroEmisor } from './cuenta.entity.js';
 import {
+  actualizarDatosSchema,
+  cambiarContrasenaSchema,
   corregirRegistroSchema,
   crearCuentaSchema,
   emisorIdRegistroSchema,
   enviarCodigoSchema,
   ingresarSchema,
   verificarCodigoSchema,
+  type ActualizarDatosDto,
+  type CambiarContrasenaDto,
   type CorregirRegistroDto,
   type CrearCuentaDto,
   type EnviarCodigoDto,
@@ -84,6 +91,26 @@ export class CuentasController {
     @Body({ schema: corregirRegistroSchema }) dto: CorregirRegistroDto,
   ): Promise<RegistroEmisor> {
     return this.cuentas.corregir(sesion, dto);
+  }
+
+  @Patch('registro')
+  @Roles('emisor')
+  actualizarDatos(
+    @SesionActual() sesion: SesionActiva,
+    @Body({ schema: actualizarDatosSchema }) dto: ActualizarDatosDto,
+  ): Promise<RegistroEmisor> {
+    return this.cuentas.actualizarDatos(sesion, dto);
+  }
+
+  @Post('contrasena')
+  @Roles('emisor')
+  @HttpCode(HttpStatus.NO_CONTENT)
+  @Throttle({ default: { limit: 10, ttl: 60_000 } })
+  cambiarContrasena(
+    @SesionActual() sesion: SesionActiva,
+    @Body({ schema: cambiarContrasenaSchema }) dto: CambiarContrasenaDto,
+  ): Promise<void> {
+    return this.cuentas.cambiarContrasena(sesion, dto);
   }
 
   @Get('registros/:emisorId')

@@ -24,6 +24,8 @@ import {
 import type { RegistroEmisor } from './cuenta.entity.js';
 import { CuentasRepository, type DatosRegistro } from './cuentas.repository.js';
 import type {
+  ActualizarDatosDto,
+  CambiarContrasenaDto,
   CorregirRegistroDto,
   CrearCuentaDto,
   EnviarCodigoDto,
@@ -235,6 +237,55 @@ export class CuentasService {
 
   async registroPorId(emisorId: string): Promise<RegistroEmisor> {
     return this.registroDe(await this.emisores.findOne(emisorId));
+  }
+
+  /** Datos que la institución cambia sin nueva revisión (configuración). */
+  async actualizarDatos(
+    sesion: SesionActiva,
+    dto: ActualizarDatosDto,
+  ): Promise<RegistroEmisor> {
+    const emisor = await this.emisores.delaCuenta(sesion.address);
+    const registro = await this.repository.findRegistro(emisor.id);
+    if (!registro) {
+      throw new ForbiddenException(
+        'Esta institución no tiene una cuenta con datos de registro',
+      );
+    }
+    const actualizado = await this.emisores.update(emisor.id, sesion.address, {
+      sitioWeb: dto.sitioWeb,
+    });
+    await this.repository.saveRegistro({
+      ...registro,
+      institucion: { ...registro.institucion, provincia: dto.provincia },
+      representante: { ...registro.representante, ...dto.representante },
+      actualizadoEn: new Date().toISOString(),
+    });
+    return this.registroDe(actualizado);
+  }
+
+  async cambiarContrasena(
+    sesion: SesionActiva,
+    dto: CambiarContrasenaDto,
+  ): Promise<void> {
+    const emisor = await this.emisores.delaCuenta(sesion.address);
+    const cuenta = await this.repository.findByEmisor(emisor.id);
+    if (!cuenta) {
+      throw new ForbiddenException('Esta institución no tiene contraseña');
+    }
+    if (!(await verificarContrasena(dto.actual, cuenta.hashContrasena))) {
+      throw new UnauthorizedException('La contraseña actual no es correcta.');
+    }
+    const tieneLlave = (await this.repository.findLlave(emisor.id)) !== null;
+    if (tieneLlave && !dto.llaveCifrada) {
+      throw new BadRequestException(
+        'Falta la llave de firma cifrada con la nueva contraseña',
+      );
+    }
+    await this.repository.cambiarContrasena(
+      emisor.id,
+      await hashContrasena(dto.nueva),
+      tieneLlave ? dto.llaveCifrada : null,
+    );
   }
 
   /** Corrige los datos y devuelve la solicitud a revisión. */

@@ -25,6 +25,12 @@ export abstract class CuentasRepository {
     llaveCifrada: string,
   ): Promise<void>;
   abstract findLlave(emisorId: string): Promise<string | null>;
+  /** Cambia la contraseña y la llave recifrada con ella, juntas. */
+  abstract cambiarContrasena(
+    emisorId: string,
+    hashContrasena: string,
+    llaveCifrada: string | null,
+  ): Promise<void>;
   abstract saveRegistro(registro: DatosRegistro): Promise<void>;
 }
 
@@ -146,6 +152,27 @@ export class SqliteCuentasRepository extends CuentasRepository {
           cuenta.creadaEn,
         );
       this.insertarRegistro(registro);
+    });
+  }
+
+  async cambiarContrasena(
+    emisorId: string,
+    hashContrasena: string,
+    llaveCifrada: string | null,
+  ): Promise<void> {
+    this.bd.transaccion(() => {
+      this.bd.db
+        .prepare(
+          'UPDATE cuentas_emisor SET hash_contrasena = ? WHERE emisor_id = ?',
+        )
+        .run(hashContrasena, emisorId);
+      if (llaveCifrada) {
+        this.bd.db
+          .prepare(
+            'UPDATE llaves_emisor SET llave_cifrada = ? WHERE emisor_id = ?',
+          )
+          .run(llaveCifrada, emisorId);
+      }
     });
   }
 

@@ -162,6 +162,59 @@ describe('CuentasService', () => {
     ).rejects.toBeInstanceOf(BadRequestException);
   });
 
+  it('actualiza los datos editables sin tocar los de la validación', async () => {
+    const servicio = crearServicio();
+    const sesion = await servicio.cuentas.crear(await datosCuenta(servicio));
+    const activa = (await servicio.auth.sesionPorToken(sesion.token))!;
+    const registro = await servicio.cuentas.actualizarDatos(activa, {
+      sitioWeb: 'https://nuevo-ejemplo.ac.cr',
+      provincia: 'Heredia',
+      representante: {
+        nombre: 'Ana Lucía Vargas',
+        cargo: 'Rectora',
+        correo: 'avargas@ciencias-ejemplo.ac.cr',
+        telefono: '2260-0000',
+      },
+    });
+    expect(registro.institucion).toMatchObject({
+      nombre: INSTITUCION.nombre,
+      identificacion: INSTITUCION.identificacion,
+      sitioWeb: 'https://nuevo-ejemplo.ac.cr',
+      provincia: 'Heredia',
+    });
+    expect(registro.representante).toMatchObject({
+      nombre: 'Ana Lucía Vargas',
+      identificacion: REPRESENTANTE.identificacion,
+    });
+  });
+
+  it('cambia la contraseña con la actual y guarda la llave recifrada', async () => {
+    const servicio = crearServicio();
+    const sesion = await servicio.cuentas.crear(await datosCuenta(servicio));
+    const activa = (await servicio.auth.sesionPorToken(sesion.token))!;
+    await expect(
+      servicio.cuentas.cambiarContrasena(activa, {
+        actual: 'Incorrecta#2026',
+        nueva: 'Nueva#Clave2026',
+        llaveCifrada: 'v1.bnVldmE=.aXY=.Y2lmcmFkbw==',
+      }),
+    ).rejects.toBeInstanceOf(UnauthorizedException);
+    await servicio.cuentas.cambiarContrasena(activa, {
+      actual: CONTRASENA,
+      nueva: 'Nueva#Clave2026',
+      llaveCifrada: 'v1.bnVldmE=.aXY=.Y2lmcmFkbw==',
+    });
+    await expect(servicio.cuentas.miLlave(activa)).resolves.toEqual({
+      llaveCifrada: 'v1.bnVldmE=.aXY=.Y2lmcmFkbw==',
+    });
+    await expect(
+      servicio.cuentas.ingresar({
+        correo: INSTITUCION.correo,
+        contrasena: 'Nueva#Clave2026',
+      }),
+    ).resolves.toMatchObject({ rol: 'emisor' });
+  });
+
   it('solo reenvía la solicitud cuando hay correcciones pendientes', async () => {
     const servicio = crearServicio();
     const sesion = await servicio.cuentas.crear(await datosCuenta(servicio));

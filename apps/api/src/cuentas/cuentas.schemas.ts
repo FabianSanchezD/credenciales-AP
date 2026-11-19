@@ -123,6 +123,39 @@ export const corregirRegistroSchema = z.strictObject({
 });
 export type CorregirRegistroDto = z.infer<typeof corregirRegistroSchema>;
 
+/**
+ * Datos que la institución puede cambiar sola. Nombre, tipo, identificación y
+ * correo de la cuenta piden una nueva validación de la entidad que autoriza.
+ */
+export const actualizarDatosSchema = z.strictObject({
+  sitioWeb: z.url({ error: 'El sitio web debe ser una URL válida' }),
+  provincia: z.enum(PROVINCIAS),
+  representante: z.strictObject({
+    nombre: texto(3).refine((v) => v.split(/\s+/).length >= 2, {
+      error: 'Escribe el nombre y al menos un apellido',
+    }),
+    cargo: texto(3),
+    correo: correoSchema,
+    telefono: z
+      .string()
+      .trim()
+      .regex(/^[0-9+\-\s]{8,20}$/, { error: 'Escribe un teléfono válido' }),
+  }),
+});
+export type ActualizarDatosDto = z.infer<typeof actualizarDatosSchema>;
+
+export const cambiarContrasenaSchema = z.strictObject({
+  actual: z.string().min(1).max(200),
+  nueva: contrasenaSchema,
+  /** La llave de firma recifrada en el navegador con la nueva contraseña. */
+  llaveCifrada: z
+    .string()
+    .regex(/^v1\.[A-Za-z0-9+/=]+\.[A-Za-z0-9+/=]+\.[A-Za-z0-9+/=]+$/)
+    .max(1000)
+    .nullable(),
+});
+export type CambiarContrasenaDto = z.infer<typeof cambiarContrasenaSchema>;
+
 export const emisorIdRegistroSchema = z.uuid({
   error: 'El id del emisor no es válido',
 });
