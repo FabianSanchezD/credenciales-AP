@@ -30,9 +30,23 @@ export function useStellarAccount(address: string | null) {
     }
   }, [address]);
 
+  // Primera lectura al cambiar la cuenta. Los setState ocurren al resolver la
+  // consulta, no durante el efecto.
   useEffect(() => {
-    void refresh();
-  }, [refresh]);
+    if (!address) return;
+    let vigente = true;
+    getAccountState(address, stellarNetwork).then(
+      (estado) => {
+        if (vigente) setAccount(estado);
+      },
+      (e: unknown) => {
+        if (vigente) setError(e instanceof Error ? e : new Error(String(e)));
+      },
+    );
+    return () => {
+      vigente = false;
+    };
+  }, [address]);
 
   /** Solo testnet: crea la cuenta on-chain con XLM de prueba (Friendbot). */
   const fundOnTestnet = useCallback(async () => {

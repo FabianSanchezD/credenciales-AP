@@ -13,6 +13,8 @@ if (!isStellarNetwork(network)) {
 }
 
 export const env = {
+  apiUrl: process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:4000/api",
+  verificadorUrl: process.env.NEXT_PUBLIC_VERIFICADOR_URL ?? "http://localhost:3002",
   cavosAppId: process.env.NEXT_PUBLIC_CAVOS_APP_ID,
   /** Nunca cambiarlo en producción: es la sal de la llave de cada titular. */
   cavosAppSalt:

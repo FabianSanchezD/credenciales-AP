@@ -16,8 +16,16 @@ export type EstadoWallet =
   | "requiere_aprobacion"
   | "lista";
 
+/** Wallet de Cavos en Stellar: firma mensajes y transacciones en el dispositivo. */
+export type WalletStellarCavos = Extract<
+  NonNullable<CavosContextValue["wallet"]>,
+  { chain: "stellar" }
+>;
+
 export interface TitularWallet {
   estado: EstadoWallet;
+  /** La wallet conectada, o `null` si aún no hay sesión de Cavos. */
+  wallet: WalletStellarCavos | null;
   usuario: CavosContextValue["user"];
   address: string | null;
   did: string | null;
@@ -61,6 +69,7 @@ export function useTitularWallet(): TitularWallet {
 
   return {
     estado,
+    wallet,
     usuario: cavos.user,
     address,
     did,
