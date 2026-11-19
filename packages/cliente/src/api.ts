@@ -1,4 +1,4 @@
-import type { ContenidoPlantilla, FirmaMensaje } from "@repo/credenciales";
+import type { ContenidoPlantilla, FirmaMensaje, Identificacion } from "@repo/credenciales";
 import type {
   CategoriaEmisor,
   ConfigPublica,
@@ -152,7 +152,13 @@ export class ClienteApi {
   obtenerEmision(id: string) {
     return this.pedir<Emision>("GET", `/emisiones/${id}`);
   }
-  prepararEmision(datos: { plantillaId: string; titularDid: string; calificacion?: string }) {
+  prepararEmision(datos: {
+    plantillaId: string;
+    titularDid: string;
+    titularNombre: string;
+    identificacion?: Identificacion;
+    calificacion?: string;
+  }) {
     return this.pedir<EmisionPreparada>("POST", "/emisiones", datos);
   }
   firmarEmision(id: string, firma: FirmaMensaje) {

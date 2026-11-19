@@ -4,6 +4,7 @@ import { ETIQUETAS_CATEGORIA, type IdComprobacion, type ResultadoVerificacion } 
 import {
   ATRIBUTOS_SELECCIONABLES,
   ETIQUETAS_ATRIBUTO,
+  ETIQUETAS_TIPO_IDENTIFICACION,
   ETIQUETAS_MODALIDAD,
   ETIQUETAS_NIVEL,
   ETIQUETAS_TIPO_APRENDIZAJE,
@@ -222,6 +223,15 @@ function ValorAtributo({
     );
   }
   if (clave === "calificacion") return atributos.calificacion;
+  if (clave === "nombreTitular") return <span className="font-medium">{atributos.nombreTitular}</span>;
+  if (clave === "identificacion" && atributos.identificacion) {
+    return (
+      <span>
+        {ETIQUETAS_TIPO_IDENTIFICACION[atributos.identificacion.tipo]}:{" "}
+        <span className="font-mono text-sm">{atributos.identificacion.numero}</span>
+      </span>
+    );
+  }
   const lista = clave === "resultadosAprendizaje" ? atributos.resultadosAprendizaje : atributos.temasEvaluados;
   if (!lista || lista.length === 0) return <span className="text-tinta-suave">Ninguno</span>;
   return (

@@ -6,6 +6,7 @@ import {
   codificarPresentacion,
   crearPresentacion,
   ETIQUETAS_ATRIBUTO,
+  ETIQUETAS_TIPO_IDENTIFICACION,
   type AtributoSeleccionable,
   type AtributosSeleccionables,
 } from "@repo/credenciales";
@@ -37,7 +38,8 @@ const SIEMPRE_VISIBLE = [
 ];
 
 /** Por omisión se muestra lo que da sentido a la credencial; lo demás lo decide el titular. */
-const POR_OMISION: AtributoSeleccionable[] = ["resultadosAprendizaje", "contexto"];
+/** La identificación queda oculta por omisión: el titular la agrega solo si hace falta. */
+const POR_OMISION: AtributoSeleccionable[] = ["nombreTitular", "resultadosAprendizaje", "contexto"];
 
 function plural(n: number, singular: string, varios: string): string {
   return `${n} ${n === 1 ? singular : varios}`;
@@ -48,6 +50,12 @@ function vistaPrevia(
   atributos: Partial<AtributosSeleccionables>,
 ): string | null {
   switch (nombre) {
+    case "nombreTitular":
+      return atributos.nombreTitular ?? null;
+    case "identificacion":
+      return atributos.identificacion
+        ? `${ETIQUETAS_TIPO_IDENTIFICACION[atributos.identificacion.tipo]} ${atributos.identificacion.numero}`
+        : null;
     case "resultadosAprendizaje":
       return atributos.resultadosAprendizaje
         ? plural(atributos.resultadosAprendizaje.length, "resultado", "resultados")

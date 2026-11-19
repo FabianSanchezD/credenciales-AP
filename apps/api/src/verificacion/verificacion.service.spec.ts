@@ -34,6 +34,8 @@ async function emitir(contenido: Partial<ContenidoPlantilla> = {}) {
   const { emision, mensajeAFirmar } = await ctx.emisiones.preparar(cuenta, {
     plantillaId: plantilla.id,
     titularDid,
+    titularNombre: 'Ana Rojas Mora',
+    identificacion: { tipo: 'cedula', numero: '1-1234-0567' },
     calificacion: 'Aprobado',
   });
   const { transaccion } = await ctx.emisiones.firmar(

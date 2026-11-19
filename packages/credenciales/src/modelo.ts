@@ -29,6 +29,25 @@ export const ETIQUETAS_TIPO_APRENDIZAJE: Record<TipoAprendizaje, string> = {
 const textoCorto = z.string().trim().min(1).max(200);
 const textoLargo = z.string().trim().min(1).max(2000);
 
+/** Documentos con los que el emisor puede identificar al titular. */
+export const TIPOS_IDENTIFICACION = ["cedula", "carne", "dimex", "pasaporte"] as const;
+export type TipoIdentificacion = (typeof TIPOS_IDENTIFICACION)[number];
+export const ETIQUETAS_TIPO_IDENTIFICACION: Record<TipoIdentificacion, string> = {
+  cedula: "Cédula de identidad",
+  carne: "Carné institucional",
+  dimex: "DIMEX",
+  pasaporte: "Pasaporte",
+};
+
+export const identificacionSchema = z.object({
+  tipo: z.enum(TIPOS_IDENTIFICACION),
+  numero: z.string().trim().min(1).max(40),
+});
+export type Identificacion = z.infer<typeof identificacionSchema>;
+
+/** Nombre del titular tal como lo registra la institución. */
+export const nombreTitularSchema = z.string().trim().min(2).max(200);
+
 export const didStellarSchema = z
   .string()
   .refine(isDidStellar, { message: "Debe ser un did:stellar válido" });
@@ -59,6 +78,8 @@ export type ContenidoPlantilla = z.infer<typeof contenidoPlantillaSchema>;
 
 /** Atributos que el titular puede revelar u ocultar al presentar. */
 export const ATRIBUTOS_SELECCIONABLES = [
+  "nombreTitular",
+  "identificacion",
   "resultadosAprendizaje",
   "temasEvaluados",
   "contexto",
@@ -67,13 +88,22 @@ export const ATRIBUTOS_SELECCIONABLES = [
 export type AtributoSeleccionable = (typeof ATRIBUTOS_SELECCIONABLES)[number];
 
 export const ETIQUETAS_ATRIBUTO: Record<AtributoSeleccionable, string> = {
+  nombreTitular: "Nombre del titular",
+  identificacion: "Identificación",
   resultadosAprendizaje: "Resultados de aprendizaje",
   temasEvaluados: "Temas evaluados",
   contexto: "Contexto formativo",
   calificacion: "Calificación",
 };
 
+/**
+ * El nombre y la identificación del titular viajan solo dentro de la
+ * credencial (cifrada en reposo, nunca en la blockchain) y el titular decide
+ * si los revela. Son opcionales para seguir leyendo credenciales anteriores.
+ */
 export interface AtributosSeleccionables {
+  nombreTitular?: string;
+  identificacion?: Identificacion;
   resultadosAprendizaje: string[];
   temasEvaluados: string[];
   contexto: Contexto;

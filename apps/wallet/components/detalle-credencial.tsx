@@ -6,6 +6,7 @@ import {
   ETIQUETAS_MODALIDAD,
   ETIQUETAS_NIVEL,
   ETIQUETAS_TIPO_APRENDIZAJE,
+  ETIQUETAS_TIPO_IDENTIFICACION,
   hashCredencial,
   type TipoEstado,
 } from "@repo/credenciales";
@@ -106,6 +107,23 @@ function Detalle({ credencial }: { credencial: CredencialEnBoveda }) {
       />
 
       <Panel className="flex flex-col gap-6">
+        {(atributos.nombreTitular || atributos.identificacion) && (
+          <Seccion titulo="Titular">
+            <ListaDatos
+              datos={[
+                ...(atributos.nombreTitular ? [{ termino: "Nombre", valor: atributos.nombreTitular }] : []),
+                ...(atributos.identificacion
+                  ? [
+                      {
+                        termino: ETIQUETAS_TIPO_IDENTIFICACION[atributos.identificacion.tipo],
+                        valor: <span className="font-mono text-sm">{atributos.identificacion.numero}</span>,
+                      },
+                    ]
+                  : []),
+              ]}
+            />
+          </Seccion>
+        )}
         {atributos.resultadosAprendizaje && atributos.resultadosAprendizaje.length > 0 && (
           <Seccion titulo={ETIQUETAS_ATRIBUTO.resultadosAprendizaje}>
             <Lista elementos={atributos.resultadosAprendizaje} />
