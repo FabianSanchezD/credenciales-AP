@@ -15,7 +15,7 @@ verify again) was run live in the four web apps against Stellar testnet, and
 | Phase 0: ADRs (`docs/adr`) | Done |
 | Phases 1 to 7: API, shared packages, four web apps | Done, tested live on testnet |
 | Phase 8: rate limiting, Redis option, Spanish responsive UI, Tabla 1 indicators | Done |
-| Cavos login in the wallet | Built and configured with a development App ID; it is the only titular login (demo accounts removed) |
+| Cavos login in the wallet | Built and configured with a development App ID; it is the only titular login (the wallet has no demo account; issuer and governance keep one on testnet) |
 | ACTA driver | Tested live on 2026-11-18: issuance needs one API key per issuer and an issuer `did:stellar` in the ACTA registry; the PoC stays on the `stellar` driver (ADR 0001) |
 | Usability test with real testers (RNF-08) and deployment | Pending, needs people and hosting |
 

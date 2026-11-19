@@ -22,6 +22,8 @@ import { useTitular } from "./titular";
 
 const METODOS: Record<TipoFirmante, string> = {
   cavos: "Digital Wallet de Cavos (passkey o correo)",
+  // La wallet ya no ofrece cuenta demo; solo el emisor y la gobernanza en testnet.
+  demo: "Cuenta demo de este navegador",
   wallet: "Wallet de Stellar",
 };
 
