@@ -16,7 +16,7 @@ verify again) was run live in the four web apps against Stellar testnet, and
 | Phases 1 to 7: API, shared packages, four web apps | Done, tested live on testnet |
 | Phase 8: rate limiting, Redis option, Spanish responsive UI, Tabla 1 indicators | Done |
 | Cavos login in the wallet | Built and configured with a development App ID; it is the only titular login (demo accounts removed) |
-| ACTA driver | Built and unit tested with mocks; live test needs an API key (`docs/acta-spike.md`) |
+| ACTA driver | Tested live on 2026-11-18: issuance needs one API key per issuer and an issuer `did:stellar` in the ACTA registry; the PoC stays on the `stellar` driver (ADR 0001) |
 | Usability test with real testers (RNF-08) and deployment | Pending, needs people and hosting |
 
 The original "where we started" snapshot: monorepo, `@repo/stellar`, emisores and titulares APIs

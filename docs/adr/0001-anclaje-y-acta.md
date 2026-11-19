@@ -40,3 +40,31 @@ ACTA (`vc-vault-factory` y `vc-vault`). Al revisar el SDK oficial (`@acta-team/c
 - Para cerrar la decisión abierta #1 con ACTA: crear la API key, poner `ANCLAJE_DRIVER=acta` y
   ejecutar la prueba de revocación descrita en `docs/acta-spike.md`. Si ACTA solo permite revocar
   al dueño de la bóveda, se mantiene el driver `stellar` para el estado de revocación.
+
+## Resultado de la prueba en vivo con ACTA (2026-11-18)
+
+Se creó una API key de testnet en dapp.acta.build y se probó `ANCLAJE_DRIVER=acta` desde el portal
+del emisor. La emisión no llegó a completarse, por dos requisitos de ACTA que el driver actual no
+cubre:
+
+1. **Una API key por emisor.** ACTA responde `403` ("The issuer must be the wallet address
+   associated with your API key") si el emisor no es la wallet que creó la key. Con una sola
+   `ACTA_API_KEY` en la API, la plataforma solo podría tener una institución emisora; para varias
+   haría falta guardar una key por institución.
+2. **DID del emisor en el registro de ACTA.** Con la wallet correcta, ACTA responde "issuer did is
+   required". El SDK 1.1.10 exige un `issuerDid` con forma `did:stellar:<red>:<26 caracteres a-z2-7>`,
+   registrado on-chain en el registro de DIDs de ACTA. No acepta el `did:stellar:<red>:G...` de la
+   plataforma (ADR 0002). Ese DID tiene su propia llave ("issuer identity") que debe persistir: en el
+   navegador el SDK la guarda en IndexedDB; en un servidor exige un almacenamiento explícito.
+
+Además, el flujo del SDK crea la bóveda ACTA del titular (`createVault`) antes de emitir, cosa que
+el driver tampoco hace. La pregunta de la decisión abierta #1 (si el emisor puede revocar) quedó sin
+probar porque la emisión no llegó a ese punto.
+
+**Decisión:** la prueba de concepto se queda con el driver `stellar`. Integrar ACTA requiere:
+
+- registrar, una sola vez y desde el navegador del emisor, su `did:stellar` de ACTA (la llave no
+  pasa por la API, RNF-02) y guardar el `issuerDid` junto al emisor;
+- una API key de ACTA por institución, o un acuerdo con ACTA para una key de plataforma;
+- crear la bóveda ACTA del titular, firmada con su wallet de Cavos o patrocinada;
+- repetir la prueba de revocación de `docs/acta-spike.md`.

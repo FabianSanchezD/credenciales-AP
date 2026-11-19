@@ -1,7 +1,9 @@
 # Prueba pendiente con ACTA (decisión abierta #1)
 
-El driver `acta` está implementado pero no se ha probado en vivo, porque la API de ACTA exige una
-API key que solo puede crear una persona del equipo.
+Probada en vivo el 2026-11-18 con una API key de testnet: la emisión falla porque ACTA exige una
+key por emisor y un `did:stellar` del emisor registrado en su propio registro. Detalle y decisión en
+el ADR 0001 ("Resultado de la prueba en vivo con ACTA"). Los pasos de abajo siguen sirviendo una vez
+que el driver registre ese DID y cree la bóveda del titular.
 
 ## Pasos
 

@@ -82,5 +82,6 @@ pnpm test:e2e
 ## Pendiente fuera del alcance de la prueba de concepto
 
 Pruebas de conocimiento cero sobre BLS12-381, gobernanza como DAO (Entregable 4), validez legal
-bajo la Ley 8454, red principal y estrategia de costo de 1 USDC por emisión, y la prueba en vivo
-del driver ACTA ([`docs/acta-spike.md`](docs/acta-spike.md)).
+bajo la Ley 8454, red principal y estrategia de costo de 1 USDC por emisión, y la integración
+completa con ACTA: DID del emisor en su registro, una key por institución y bóveda del titular
+([ADR 0001](docs/adr/0001-anclaje-y-acta.md)).
